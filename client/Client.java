@@ -14,10 +14,11 @@ public class Client {
 	private int direction;
 	private boolean alive = true;
 	
-	public Client(final int id, final Point startPosition){
+	public Client(final int id, final Point startPosition, final int startDirection){
 		
 		this.id = id;
 		this.position = startPosition;
+		this.direction = startDirection;
 		
 	}
 	

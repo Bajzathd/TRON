@@ -26,8 +26,7 @@ public class Server {
 			do {
 				p = new Point(rnd.nextInt(WIDTH), rnd.nextInt(HEIGHT));
 			} while(map.getValue(p) != 0);
-			clients[id - 1] = new Client(id, p);
-			clients[id - 1].setDirection(rnd.nextInt(4));
+			clients[id - 1] = new Client(id, p, rnd.nextInt(4));
 		}
 	}
 	
@@ -52,12 +51,23 @@ public class Server {
 	
 	public boolean isOver(){
 		
+		int numAlive = 0;
+		Client lastClient = null;
+		
 		for(Client client : clients){
 			if(client.isAlive()){
-				return false;
+				numAlive++;
+				lastClient = client;
 			}
 		}
-		return true;
+
+		if(numAlive <= 1){
+			if(numAlive == 1){
+				System.out.printf("Client #%d won!\n", lastClient.getId());
+			}
+			return true;
+		}
+		return false;
 	}
 	
 }
