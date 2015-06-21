@@ -13,6 +13,9 @@ public class TronMap {
 	private int height;
 	private int[][] map;
 	
+	public static final int FREE = 0;
+	public static final int OBSTACLE = -1;
+	
 	public TronMap(int width, int height){
 		this.width = width;
 		this.height = height;
@@ -21,19 +24,36 @@ public class TronMap {
 		this.map = gen.generate();
 	}
 	
-	public void printMap(){
-		Point p;
+	public void print(){
 		
 		for(int y = 0; y < height; y++){
 			for(int x = 0; x < width; x++){
 				if(this.map[x][y] == 0){
 					System.out.print(" ");
 				} else {
-					System.out.print("#");
+					System.out.print(this.map[x][y] == -1 ? "#" : this.map[x][y]);
 				}
 			}
 			System.out.println();
 		}
+	}
+	
+	public int getValue(final Point p){
+		return this.map[(int) p.getX()][(int) p.getY()];
+	}
+	
+	public void setValue(final Point p, final int value){
+		this.map[(int) p.getX()][(int) p.getY()] = value;
+	}
+	
+	public boolean isInside(Point p){
+		int x = (int) p.getX()
+			,y = (int) p.getY();
+		return 
+			x >= 0 
+			&& x < width 
+			&& y >= 0 
+			&& y < height;
 	}
 
 }

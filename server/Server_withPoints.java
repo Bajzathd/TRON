@@ -23,7 +23,7 @@ public class Server_withPoints {
 			
 			System.out.println(i + " " + (endTime - startTime)+"ms");
 			
-			map.printMap();
+			map.print();
 		}
 		
 		sumTime /= times;

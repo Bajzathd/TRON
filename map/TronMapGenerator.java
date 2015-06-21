@@ -21,8 +21,6 @@ public class TronMapGenerator {
 	
 	private static final double LIMIT = 0.05;
 	
-	public static final int FREE = 0;
-	public static final int OBSTACLE = -1;
 	private static final int TEMP_OBSTACLE = -2;
 
 	public TronMapGenerator(int width, int height) {
@@ -46,7 +44,7 @@ public class TronMapGenerator {
 		//minden mezõt játszhatóra állítunk
 		for(y = 0; y < height; y++){
 			for(x = 0; x < width; x++){
-				this.map[x][y] = FREE;
+				this.map[x][y] = TronMap.FREE;
 			}
 		}
 		
@@ -66,9 +64,9 @@ public class TronMapGenerator {
 	
 	private void pacagen(final int x, final int y){
 		if(
-			!isValidPoint(x, y)			//kilóg a mapról a pont
-			|| map[x][y] != FREE		//már elfoglalt a pont
-			|| rnd.nextDouble() < 0.6	//esély
+			!isValidPoint(x, y)				//kilóg a mapról a pont
+			|| map[x][y] != TronMap.FREE	//már elfoglalt a pont
+			|| rnd.nextDouble() < 0.6		//esély
 		){
 			return;
 		}
@@ -104,7 +102,7 @@ public class TronMapGenerator {
 		Point p;
 		for(int y=0; y<height; y++){
 			for(int x=0; x<width; x++){
-				if(map[x][y] == FREE){
+				if(map[x][y] == TronMap.FREE){
 					return new Point(x, y);
 				}
 			}
@@ -117,7 +115,7 @@ public class TronMapGenerator {
 		
 		if(
 			!isValidPoint(x, y)				//lelóg a mapról
-			|| map[x][y] != FREE			//nem üres pont
+			|| map[x][y] != TronMap.FREE	//nem üres pont
 			|| visitedPoints.contains(p)	//már meglátogattuk
 		){
 			return;
@@ -134,7 +132,7 @@ public class TronMapGenerator {
 	private void handleLastDrop(final boolean isValid){
 		int x
 			,y
-			,value = isValid ? OBSTACLE : FREE
+			,value = isValid ? TronMap.OBSTACLE : TronMap.FREE
 			,tempObstacles = 0;
 		
 		for(y=0; y<height; y++){

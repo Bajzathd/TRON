@@ -1,49 +1,68 @@
 package server;
 
+import java.awt.Point;
+import java.util.Random;
+
+import client.Client;
 import map.TronMap;
 import map.TronMap_withPoints;
 
-public class Server {
+public class Server extends Thread{
 	
-	public long sumTime = 0;
-	public long sumTime_withPoints = 0;
-
-	public static void main(String [ ] args){
-		Server s = new Server();
-		
-		for(int i=0; i<10; i++){
-			s.runTest_withPoints();
-			s.runTest();
+	private TronMap map;
+	private Client[] clients;
+	
+	private static final int WIDTH = 150;
+	private static final int HEIGHT = 30;
+	private static final Point[] startPositions = new Point[]{
+		new Point(WIDTH/3, HEIGHT/3)
+		,new Point(2*WIDTH/3, HEIGHT/3)
+		,new Point(WIDTH/3, 2*HEIGHT/3)
+		,new Point(2*WIDTH/3, 2*HEIGHT/3)
+	};
+	
+	public Server(final int numberOfClients){
+		if(numberOfClients > startPositions.length){
+			throw new IndexOutOfBoundsException();
 		}
+		this.map = new TronMap(150, 30);
 		
-		s.sumTime /= 10;
-		s.sumTime_withPoints /= 10;
-		
-		System.out.printf("sumTime: %d, sumTime_withPoints: %d", s.sumTime, s.sumTime_withPoints);
+		this.clients = new Client[numberOfClients];
+		Random rnd = new Random();
+		for(int id = 1; id <= this.clients.length; id++){
+			clients[id - 1] = new Client(id, startPositions[id-1]);
+			clients[id - 1].setDirection(rnd.nextInt(4));
+		}
 	}
 	
-	public void runTest(){
-	
-		long startTime = System.currentTimeMillis();
-		
-		TronMap map = new TronMap(150, 30);
-		
-		long endTime = System.currentTimeMillis();
-		
-		sumTime += endTime - startTime;
-			
+	private void refreshMap(){
+		for(Client client : clients){
+			if(client.isAlive()){
+				client.step();
+				Point clientPosition = client.getPosition();
+				
+				if(
+					!map.isInside(clientPosition)					//kiment a pályáról
+					|| map.getValue(clientPosition) != TronMap.FREE	//nem üres mezõre lépett
+				){
+					client.kill();
+				} else {
+					map.setValue(clientPosition, client.getId());
+				}
+			}
+		}
+		map.print();
 	}
 	
-	public void runTest_withPoints(){
-		
-		long startTime = System.currentTimeMillis();
-		
-		TronMap_withPoints map = new TronMap_withPoints(150, 30);
-		
-		long endTime = System.currentTimeMillis();
-		
-		sumTime_withPoints += endTime - startTime;
-			
+	public void run(){
+		try{
+			do{
+				this.refreshMap();
+				Thread.sleep(1000);
+			} while(true);
+		} catch(InterruptedException ex) {
+		    Thread.currentThread().interrupt();
+		}
 	}
 	
 }
