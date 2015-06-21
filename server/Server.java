@@ -5,37 +5,33 @@ import java.util.Random;
 
 import client.Client;
 import map.TronMap;
-import map.TronMap_withPoints;
 
-public class Server extends Thread{
+public class Server {
 	
 	private TronMap map;
 	private Client[] clients;
 	
 	private static final int WIDTH = 150;
 	private static final int HEIGHT = 30;
-	private static final Point[] startPositions = new Point[]{
-		new Point(WIDTH/3, HEIGHT/3)
-		,new Point(2*WIDTH/3, HEIGHT/3)
-		,new Point(WIDTH/3, 2*HEIGHT/3)
-		,new Point(2*WIDTH/3, 2*HEIGHT/3)
-	};
 	
 	public Server(final int numberOfClients){
-		if(numberOfClients > startPositions.length){
-			throw new IndexOutOfBoundsException();
-		}
+		
+		System.out.println("Generating map...");
 		this.map = new TronMap(150, 30);
 		
 		this.clients = new Client[numberOfClients];
 		Random rnd = new Random();
+		Point p;
 		for(int id = 1; id <= this.clients.length; id++){
-			clients[id - 1] = new Client(id, startPositions[id-1]);
+			do {
+				p = new Point(rnd.nextInt(WIDTH), rnd.nextInt(HEIGHT));
+			} while(map.getValue(p) != 0);
+			clients[id - 1] = new Client(id, p);
 			clients[id - 1].setDirection(rnd.nextInt(4));
 		}
 	}
 	
-	private void refreshMap(){
+	public void refreshMap(){
 		for(Client client : clients){
 			if(client.isAlive()){
 				client.step();
@@ -54,15 +50,14 @@ public class Server extends Thread{
 		map.print();
 	}
 	
-	public void run(){
-		try{
-			do{
-				this.refreshMap();
-				Thread.sleep(1000);
-			} while(true);
-		} catch(InterruptedException ex) {
-		    Thread.currentThread().interrupt();
+	public boolean isOver(){
+		
+		for(Client client : clients){
+			if(client.isAlive()){
+				return false;
+			}
 		}
+		return true;
 	}
 	
 }

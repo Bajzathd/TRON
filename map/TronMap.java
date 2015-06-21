@@ -36,6 +36,7 @@ public class TronMap {
 			}
 			System.out.println();
 		}
+		System.out.println();
 	}
 	
 	public int getValue(final Point p){
