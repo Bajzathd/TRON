@@ -1,6 +1,9 @@
 package server;
 
 import java.awt.Point;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import client.Client;
@@ -13,15 +16,14 @@ public class Server {
 	private int height;
 	
 	private Client[] clients;
-	private int numLivingClients;
-	private int sumClientIds = 0;
+	private Map<Integer, Point> clientPositions = new HashMap<Integer, Point>(); //<clientId, clientPosition>
+	private ArrayList<Client> aliveClients = new ArrayList<Client>();
 	
 	public Server(final Client[] clients){
 		this.clients = clients;
 		
-		this.numLivingClients = clients.length;
 		for( Client client : clients ){
-			this.sumClientIds += client.getId();
+			this.aliveClients.add(client);
 		}
 	}
 	
@@ -37,12 +39,13 @@ public class Server {
 		Random rnd = new Random();
 		Point p;
 		
-		for(Client client : this.clients){
+		for(Client client : this.aliveClients){
 			do {
 				p = new Point(rnd.nextInt(this.width), rnd.nextInt(this.height));
 			} while(this.map.getValue(p) != 0);
 			
-			client.setStart(p, rnd.nextInt(4));
+			client.setStart(rnd.nextInt(4));
+			this.clientPositions.put(client.getId(), p);
 			this.map.setValue(p, client.getId());
 		}
 		
@@ -51,36 +54,56 @@ public class Server {
 	}
 	
 	public void refreshMap(){
-		for(Client client : clients){
-			if(client.isAlive()){
-				client.step();
-				Point clientPosition = client.getPosition();
-				
-				if(
-					!map.isInside(clientPosition)					//kiment a pályáról
-					|| map.getValue(clientPosition) != TronMap.FREE	//nem üres mezõre lépett
-				){
-					this.killClient(client);
-				} else {
-					map.setValue(clientPosition, client.getId());
-				}
+		//ha nincs az elején egy másik változónak átadva akkor kill esetén elszáll ConcurrentModificationException-el
+		@SuppressWarnings("unchecked")
+		ArrayList<Client> currentlyAliveClients = (ArrayList<Client>) this.aliveClients.clone();
+		
+		for(Client client : currentlyAliveClients){
+			Point clientPosition = this.stepClient(client);
+			
+			if(
+				!map.isInside(clientPosition)					//kiment a pályáról
+				|| map.getValue(clientPosition) != TronMap.FREE	//nem üres mezõre lépett
+			){
+				//FIXME ha két kliens szemben egymásnak ütközik akkor a kisebb id-jú nyer
+				this.killClient(client);
+			} else {
+				map.setValue(clientPosition, client.getId());
 			}
 		}
-		map.print();
+		
+		map.print(); //TODO GUI, feltételessé tenni hogy tesztekkor ne legyen gui
 	}
 	
 	private void killClient(final Client client){
-		
 		client.kill();
+		this.aliveClients.remove(client);
+	}
+	
+	private Point stepClient(final Client client){
+		Point clientPosition = clientPositions.get(client.getId());
 		
-		numLivingClients--;
-		sumClientIds -= client.getId();
+		switch (client.getDirection()){
+			case Client.DIRECTION_UP: 	
+				clientPosition.translate(0, -1); 
+				break;
+			case Client.DIRECTION_RIGHT: 
+				clientPosition.translate(1, 0); 
+				break;
+			case Client.DIRECTION_DOWN: 
+				clientPosition.translate(0, 1); 
+				break;
+			case Client.DIRECTION_LEFT: 
+				clientPosition.translate(-1, 0);
+				break;
+		}
+		
+		return clientPosition;
 	}
 	
 	public boolean isOver(){
-		
-		if( this.numLivingClients == 1 ){
-			System.out.printf("Client #%d won!\n", this.sumClientIds); //TODO GUI
+		if( this.aliveClients.size() == 1 ){
+			System.out.printf("Client #%d won!\n", this.aliveClients.get(0).getId()); //TODO GUI
 			return true;
 		}
 		return false;

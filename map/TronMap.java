@@ -25,8 +25,12 @@ public class TronMap {
 	}
 	
 	public void print(){
-		
+		for(int x = 0; x <= width; x++){
+			System.out.print("#");
+		}
+		System.out.println("#");
 		for(int y = 0; y < height; y++){
+			System.out.print("#");
 			for(int x = 0; x < width; x++){
 				if(this.map[x][y] == 0){
 					System.out.print(" ");
@@ -34,7 +38,10 @@ public class TronMap {
 					System.out.print(this.map[x][y] == -1 ? "#" : this.map[x][y]);
 				}
 			}
-			System.out.println();
+			System.out.println("#");
+		}
+		for(int x = -1; x <= width; x++){
+			System.out.print("#");
 		}
 		System.out.println();
 	}
