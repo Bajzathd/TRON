@@ -1,6 +1,7 @@
 package map;
 
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -12,6 +13,7 @@ public class TronMap {
 	private int width;
 	private int height;
 	private int[][] map;
+	private Rectangle mapRectangle;
 	
 	public static final int FREE = 0;
 	public static final int OBSTACLE = -1;
@@ -19,6 +21,7 @@ public class TronMap {
 	public TronMap(int width, int height){
 		this.width = width;
 		this.height = height;
+		this.mapRectangle = new Rectangle(width, height);
 		
 		TronMapGenerator gen = new TronMapGenerator(width, height);
 		this.map = gen.generate();
@@ -47,21 +50,15 @@ public class TronMap {
 	}
 	
 	public int getValue(final Point p){
-		return this.map[(int) p.getX()][(int) p.getY()];
+		return this.map[p.x][p.y];
 	}
 	
 	public void setValue(final Point p, final int value){
-		this.map[(int) p.getX()][(int) p.getY()] = value;
+		this.map[p.x][p.y] = value;
 	}
 	
-	public boolean isInside(Point p){
-		int x = (int) p.getX()
-			,y = (int) p.getY();
-		return 
-			x >= 0 
-			&& x < width 
-			&& y >= 0 
-			&& y < height;
+	public boolean contains(Point p){
+		return this.mapRectangle.contains(p);
 	}
 
 }

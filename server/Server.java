@@ -42,7 +42,7 @@ public class Server {
 		for(Client client : this.aliveClients){
 			do {
 				p = new Point(rnd.nextInt(this.width), rnd.nextInt(this.height));
-			} while(this.map.getValue(p) != 0);
+			} while(this.map.getValue(p) != TronMap.FREE);
 			
 			client.setStart(rnd.nextInt(4));
 			this.clientPositions.put(client.getId(), p);
@@ -54,18 +54,18 @@ public class Server {
 	}
 	
 	public void refreshMap(){
-		//ha nincs az elején egy másik változónak átadva akkor kill esetén elszáll ConcurrentModificationException-el
 		@SuppressWarnings("unchecked")
+		//ha nincs az elején egy másik változónak átadva akkor kill esetén elszáll ConcurrentModificationException-el
 		ArrayList<Client> currentlyAliveClients = (ArrayList<Client>) this.aliveClients.clone();
 		
 		for(Client client : currentlyAliveClients){
 			Point clientPosition = this.stepClient(client);
 			
 			if(
-				!map.isInside(clientPosition)					//kiment a pályáról
+				!map.contains(clientPosition)					//kiment a pályáról
 				|| map.getValue(clientPosition) != TronMap.FREE	//nem üres mezõre lépett
 			){
-				//FIXME ha két kliens szemben egymásnak ütközik akkor a kisebb id-jú nyer
+				//FIXME ha két kliens szemben egymásnak ütközik akkor végtelen ciklus
 				this.killClient(client);
 			} else {
 				map.setValue(clientPosition, client.getId());
