@@ -1,5 +1,7 @@
 package server;
 
+import gui.UiHandler;
+
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,7 +74,7 @@ public class Server {
 			}
 		}
 		
-		map.print(); //TODO GUI, feltételessé tenni hogy tesztekkor ne legyen gui
+		UiHandler.drawMap(map);
 	}
 	
 	private void killClient(final Client client){
@@ -102,11 +104,16 @@ public class Server {
 	}
 	
 	public boolean isOver(){
-		if( this.aliveClients.size() == 1 ){
-			System.out.printf("Client #%d won!\n", this.aliveClients.get(0).getId()); //TODO GUI
-			return true;
+		switch(this.aliveClients.size()){
+			case 0:
+				UiHandler.tie();
+				return true;
+			case 1:
+				UiHandler.win(this.aliveClients.get(0));
+				return true;
+			default:
+				return false;
 		}
-		return false;
 	}
 	
 }

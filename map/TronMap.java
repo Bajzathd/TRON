@@ -27,30 +27,12 @@ public class TronMap {
 		this.map = gen.generate();
 	}
 	
-	public void print(){
-		for(int x = 0; x <= width; x++){
-			System.out.print("#");
-		}
-		System.out.println("#");
-		for(int y = 0; y < height; y++){
-			System.out.print("#");
-			for(int x = 0; x < width; x++){
-				if(this.map[x][y] == 0){
-					System.out.print(" ");
-				} else {
-					System.out.print(this.map[x][y] == -1 ? "#" : this.map[x][y]);
-				}
-			}
-			System.out.println("#");
-		}
-		for(int x = -1; x <= width; x++){
-			System.out.print("#");
-		}
-		System.out.println();
-	}
-	
 	public int getValue(final Point p){
 		return this.map[p.x][p.y];
+	}
+	
+	public int getValue(final int x, final int y){
+		return this.map[x][y];
 	}
 	
 	public void setValue(final Point p, final int value){
@@ -60,5 +42,13 @@ public class TronMap {
 	public boolean contains(Point p){
 		return this.mapRectangle.contains(p);
 	}
-
+	
+	public int getWidth(){
+		return this.width;
+	}
+	
+	public int getHeight(){
+		return this.height;
+	}
+	
 }
