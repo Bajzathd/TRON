@@ -9,31 +9,45 @@ import map.TronMap;
 public class Server {
 	
 	private TronMap map;
-	private Client[] clients;
+	private int width;
+	private int height;
 	
+	private Client[] clients;
 	private int numLivingClients;
 	private int sumClientIds = 0;
 	
-	private static final int WIDTH = 100;
-	private static final int HEIGHT = 20;
+	public Server(final Client[] clients){
+		this.clients = clients;
+		
+		this.numLivingClients = clients.length;
+		for( Client client : clients ){
+			this.sumClientIds += client.getId();
+		}
+	}
 	
-	public Server(final int numberOfClients){
+	public void generateMap(final int width, final int height){
+		this.width = width;
+		this.height = height;
 		
-		System.out.println("Generating map...");
-		this.map = new TronMap(WIDTH, HEIGHT); //TODO kivinni konstruktorból megadhatónak
-		
-		this.numLivingClients = numberOfClients;
-		
-		this.clients = new Client[numberOfClients];
+		System.out.println("Generating map..."); //TODO GUI
+		this.map = new TronMap(width, height);
+	}
+	
+	public void startGame(final int refreshInterval){
 		Random rnd = new Random();
 		Point p;
-		for(int id = 1; id <= this.clients.length; id++){
+		
+		for(Client client : this.clients){
 			do {
-				p = new Point(rnd.nextInt(WIDTH), rnd.nextInt(HEIGHT));
-			} while(map.getValue(p) != 0);
-			clients[id - 1] = new Client(id, p, rnd.nextInt(4));
-			this.sumClientIds += id;
+				p = new Point(rnd.nextInt(this.width), rnd.nextInt(this.height));
+			} while(this.map.getValue(p) != 0);
+			
+			client.setStart(p, rnd.nextInt(4));
+			this.map.setValue(p, client.getId());
 		}
+		
+		Thread mapRefresher = new Thread(new RefreshMap(this, refreshInterval));
+		mapRefresher.start();
 	}
 	
 	public void refreshMap(){
@@ -66,7 +80,7 @@ public class Server {
 	public boolean isOver(){
 		
 		if( this.numLivingClients == 1 ){
-			System.out.printf("Client #%d won!\n", this.sumClientIds); //TODO kivinni gui-ba
+			System.out.printf("Client #%d won!\n", this.sumClientIds); //TODO GUI
 			return true;
 		}
 		return false;

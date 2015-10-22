@@ -14,20 +14,29 @@ public class Client {
 	private int direction;
 	private boolean alive = true;
 	
-	public Client(final int id, final Point startPosition, final int startDirection){
-		
+	public Client(final int id){
 		this.id = id;
+	}
+	
+	public void setStart(final Point startPosition, final int startDirection){
 		this.position = startPosition;
 		this.direction = startDirection;
-		
 	}
 	
 	public void step(){
 		switch (this.direction){
-			case DIRECTION_UP: 	this.position.translate(0, -1); break;
-			case DIRECTION_RIGHT: this.position.translate(1, 0); break;
-			case DIRECTION_DOWN: 	this.position.translate(0, 1); break;
-			case DIRECTION_LEFT: 	this.position.translate(-1, 0); break;
+			case DIRECTION_UP: 	
+				this.position.translate(0, -1); 
+				break;
+			case DIRECTION_RIGHT: 
+				this.position.translate(1, 0); 
+				break;
+			case DIRECTION_DOWN: 
+				this.position.translate(0, 1); 
+				break;
+			case DIRECTION_LEFT: 
+				this.position.translate(-1, 0); 
+				break;
 		}
 	}
 	

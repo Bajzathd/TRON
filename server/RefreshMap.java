@@ -3,21 +3,29 @@ package server;
 public class RefreshMap implements Runnable {
 	
 	private Server server;
+	private int refreshInterval;
 	
-	public RefreshMap(Server server){
+	public RefreshMap(final Server server, final int refreshInterval){
 		this.server = server;
+		this.refreshInterval = refreshInterval;
 	}
 
 	@Override
 	public void run() {
-		try{
-			do{
-				server.refreshMap();
-				Thread.sleep(100);
-			} while(!server.isOver());
-			System.out.println("Game over");
-			
-		} catch(Exception ex) { }
+		if(this.refreshInterval > 0){
+			try{
+				do{
+					this.server.refreshMap();
+					Thread.sleep(this.refreshInterval);
+				} while(!this.server.isOver());
+				System.out.println("Game over"); //TODO kivinni gui-ba
+				
+			} catch(InterruptedException ex) {
+				//valami megszakította a szál futását
+			}
+		} else {
+			this.server.refreshMap();
+		}
 	}
 
 }
