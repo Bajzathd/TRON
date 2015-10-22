@@ -18,7 +18,6 @@ public class RefreshMap implements Runnable {
 					this.server.refreshMap();
 					Thread.sleep(this.refreshInterval);
 				} while(!this.server.isOver());
-				System.out.println("Game over"); //TODO kivinni gui-ba
 				
 			} catch(InterruptedException ex) {
 				//valami megszakította a szál futását

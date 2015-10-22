@@ -1,35 +1,31 @@
 package map;
 
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 public class TronMapGenerator {
 	
 	private int width;
 	private int height;
 	private int[][] map;
+	private Rectangle mapRectangle;
 	
-	private Random rnd;
+	private Random rnd = new Random();
 	private ArrayList<Point> visitedPoints;
-	private int obstacles;
+	private ArrayList<Point> tempObstacles;
+	private int numObstacles;
 	
 	private static final double LIMIT = 0.05;
 	
 	private static final int TEMP_OBSTACLE = -2;
 
-	public TronMapGenerator(int width, int height) {
-		
+	public TronMapGenerator(final int width, final int height) {
 		this.width = width;
 		this.height = height;
 		this.map = new int[width][height];
-		
-		this.rnd = new Random();
+		this.mapRectangle = new Rectangle(width, height);
 	}
 	
 	/**
@@ -39,21 +35,18 @@ public class TronMapGenerator {
 	 * >0: játékos
 	 */
 	public int[][] generate(){
-		int x, y;
-		
 		//minden mezõt játszhatóra állítunk
-		for(y = 0; y < height; y++){
-			for(x = 0; x < width; x++){
+		for(int y = 0; y < height; y++){
+			for(int x = 0; x < width; x++){
 				this.map[x][y] = TronMap.FREE;
 			}
 		}
 		
 		do{
-			x = this.rnd.nextInt(width);
-			y = this.rnd.nextInt(height);
 			this.visitedPoints = new ArrayList<Point>();
+			this.tempObstacles = new ArrayList<Point>();
 			
-			this.pacagen(x, y);
+			this.generateObstacle(this.rnd.nextInt(width), this.rnd.nextInt(height));
 			this.checkDrop();
 //			System.out.printf("visited:%d sum:%d obstacles:%d isUnderLimit:%b\n", visitedPoints.size(), (width*height), obstacles, isUnderLimit());
 //			printMap();
@@ -62,51 +55,47 @@ public class TronMapGenerator {
 		return this.map;
 	}
 	
-	private void pacagen(final int x, final int y){
+	private void generateObstacle(final int x, final int y){
 		if(
-			!isValidPoint(x, y)				//kilóg a mapról a pont
+			rnd.nextDouble() < 0.6			//esély
+			|| !mapRectangle.contains(x, y)	//kilóg a mapról a pont
 			|| map[x][y] != TronMap.FREE	//már elfoglalt a pont
-			|| rnd.nextDouble() < 0.6		//esély
 		){
 			return;
 		}
-		map[x][y] = TEMP_OBSTACLE;		//megpróbáljuk elfoglalni
-		obstacles++;					//akadályok száma nõtt
+		
+		//ideiglenesen elfoglaljuk
+		map[x][y] = TEMP_OBSTACLE;
+		tempObstacles.add(new Point(x, y));
+		
+		numObstacles++;
 		
 		//szomszédokra is meghívjuk
-		pacagen(x-1, y);
-		pacagen(x+1, y);
-		pacagen(x, y-1);
-		pacagen(x, y+1);
-	}
-	
-	private boolean isValidPoint(final int x, final int y){
-		return 
-			x >= 0 
-			&& x < width 
-			&& y >= 0 
-			&& y < height;
+		generateObstacle(x-1, y);
+		generateObstacle(x+1, y);
+		generateObstacle(x, y-1);
+		generateObstacle(x, y+1);
 	}
 
 	private void checkDrop(){
 		try{
 			Point p = getFirstEmpty();
-			visitPoint((int) p.getX(), (int) p.getY());
-			handleLastDrop(visitedPoints.size() == (width * height - obstacles)); //minden nem akadály pont be lett-e járva
+			visitPoint(p.x, p.y);
+			handleLastDrop(visitedPoints.size() == (width * height - numObstacles)); //minden nem akadály pont be lett-e járva
 		} catch(Exception e){
 			handleLastDrop(false);
 		}
 	}
 	
 	private Point getFirstEmpty() throws Exception{
-		Point p;
-		for(int y=0; y<height; y++){
-			for(int x=0; x<width; x++){
+		for(int y = 0; y < height; y++){
+			for(int x = 0; x < width; x++){
 				if(map[x][y] == TronMap.FREE){
 					return new Point(x, y);
 				}
 			}
 		}
+		
 		throw new Exception("Nincs üres pont");
 	}
 	
@@ -114,7 +103,7 @@ public class TronMapGenerator {
 		Point p = new Point(x, y);
 		
 		if(
-			!isValidPoint(x, y)				//lelóg a mapról
+			!mapRectangle.contains(x, y)	//lelóg a mapról
 			|| map[x][y] != TronMap.FREE	//nem üres pont
 			|| visitedPoints.contains(p)	//már meglátogattuk
 		){
@@ -130,27 +119,19 @@ public class TronMapGenerator {
 	}
 	
 	private void handleLastDrop(final boolean isValid){
-		int x
-			,y
-			,value = isValid ? TronMap.OBSTACLE : TronMap.FREE
-			,tempObstacles = 0;
+		int newMapValue = isValid ? TronMap.OBSTACLE : TronMap.FREE;
 		
-		for(y=0; y<height; y++){
-			for(x=0; x<width; x++){
-				if(map[x][y] == TEMP_OBSTACLE){
-					map[x][y] = value;
-					tempObstacles++;
-				}
-			}
+		for(Point tempObstacle : tempObstacles){
+			map[tempObstacle.x][tempObstacle.y] = newMapValue;
 		}
 		
 		if(!isValid){
-			obstacles -= tempObstacles;
+			numObstacles -= tempObstacles.size();
 		}
 	}
 	
 	private boolean isUnderLimit(){
-		return ((double)obstacles / (width * height)) <= LIMIT; 
+		return ((double)numObstacles / (width * height)) <= LIMIT; 
 	}
 
 }

@@ -2,12 +2,6 @@ package map;
 
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 public class TronMap {
 	private int width;
@@ -28,19 +22,23 @@ public class TronMap {
 	}
 	
 	public int getValue(final Point p){
-		return this.map[p.x][p.y];
+		if(this.mapRectangle.contains(p)){
+			return this.map[p.x][p.y];
+		} else {
+			return TronMap.OBSTACLE;
+		}
 	}
 	
 	public int getValue(final int x, final int y){
-		return this.map[x][y];
+		if(this.mapRectangle.contains(x, y)){
+			return this.map[x][y];
+		} else {
+			return TronMap.OBSTACLE;
+		}
 	}
 	
 	public void setValue(final Point p, final int value){
 		this.map[p.x][p.y] = value;
-	}
-	
-	public boolean contains(Point p){
-		return this.mapRectangle.contains(p);
 	}
 	
 	public int getWidth(){

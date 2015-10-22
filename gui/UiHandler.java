@@ -41,5 +41,9 @@ public class UiHandler {
 	public static void win(Client client) {
 		System.out.printf("Client #%d won!\n", client.getId());
 	}
+
+	public static void generatingMap() {
+		System.out.println("Generating map...");
+	}
 	
 }
