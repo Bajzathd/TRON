@@ -17,8 +17,8 @@ public class TronMap {
 		this.height = height;
 		this.mapRectangle = new Rectangle(width, height);
 		
-		TronMapGenerator gen = new TronMapGenerator(width, height);
-		this.map = gen.generate();
+		Tron3dMapGenerator generator = new Tron3dMapGenerator(width, height);
+		this.map = generator.getMap();
 	}
 	
 	public int getValue(final Point p){

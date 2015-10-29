@@ -15,16 +15,24 @@ public class UiHandler {
 			for(int x = 0; x < map.getWidth(); x++){
 				int mapValue = map.getValue(x, y);
 				
-				switch(mapValue){
-					case TronMap.FREE:
-						System.out.print(" ");
-						break;
-					case TronMap.OBSTACLE:
-						System.out.print("#");
-						break;
-					default:
-						System.out.print(mapValue);
+				if( mapValue > 0 ){
+					System.out.print("#");
+				} else if( mapValue < 0 ){
+					System.out.print(-mapValue);
+				} else {
+					System.out.print(" ");
 				}
+				
+//				switch(mapValue){
+//					case TronMap.FREE:
+//						System.out.print(" ");
+//						break;
+//					case TronMap.OBSTACLE:
+//						System.out.print("#");
+//						break;
+//					default:
+//						System.out.print(mapValue);
+//				}
 			}
 			System.out.println("#");
 		}
@@ -39,7 +47,7 @@ public class UiHandler {
 	}
 
 	public static void win(Client client) {
-		System.out.printf("Client #%d won!\n", client.getId());
+		System.out.printf("Client #%d won!", client.getId());
 	}
 
 	public static void generatingMap() {

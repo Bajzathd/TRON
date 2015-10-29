@@ -17,6 +17,8 @@ public class Server {
 	private int width;
 	private int height;
 	
+	private int refreshInterval = 400;
+	
 	private Client[] clients;
 	private Map<Integer, Point> clientPositions = new HashMap<Integer, Point>(); //<clientId, clientPosition>
 	private ArrayList<Client> aliveClients = new ArrayList<Client>();
@@ -33,11 +35,11 @@ public class Server {
 		this.width = width;
 		this.height = height;
 		
-		System.out.println("Generating map..."); //TODO GUI
+		UiHandler.generatingMap();
 		this.map = new TronMap(width, height);
 	}
 	
-	public void startGame(final int refreshInterval){
+	public void startGame(){
 		Random rnd = new Random();
 		Point p;
 		
@@ -51,27 +53,38 @@ public class Server {
 			this.map.setValue(p, client.getId());
 		}
 		
-		Thread mapRefresher = new Thread(new RefreshMap(this, refreshInterval));
+		UiHandler.drawMap(this.map);
+		
+		Thread mapRefresher = new Thread(new RefreshMap(this));
 		mapRefresher.start();
 	}
 	
 	public void refreshMap(){
-		@SuppressWarnings("unchecked")
-		//ha nincs az elején egy másik változónak átadva akkor kill esetén elszáll ConcurrentModificationException-el
-		ArrayList<Client> currentlyAliveClients = (ArrayList<Client>) this.aliveClients.clone();
+		ArrayList<Point> newPositions = new ArrayList<Point>();
+		ArrayList<Client> clientsToKill = new ArrayList<Client>();
 		
-		for(Client client : currentlyAliveClients){
+		for(Client client : this.aliveClients){
+			//minden élõ klienst léptetünk
 			Point clientPosition = this.stepClient(client);
 			
-			if(
-				!map.contains(clientPosition)					//kiment a pályáról
-				|| map.getValue(clientPosition) != TronMap.FREE	//nem üres mezõre lépett
-			){
-				//FIXME ha két kliens szemben egymásnak ütközik akkor végtelen ciklus
-				this.killClient(client);
+			if(this.map.getValue(clientPosition) != TronMap.FREE){
+				clientsToKill.add(client);
+				if(newPositions.contains(clientPosition)){
+					//szembõl egymásnak mentek
+					for(Client otherClient : this.aliveClients){
+						if(this.clientPositions.get(otherClient) == clientPosition){
+							clientsToKill.add(otherClient);
+						}
+					}
+				}
 			} else {
-				map.setValue(clientPosition, client.getId());
+				newPositions.add(clientPosition);
+				this.map.setValue(clientPosition, -client.getId());
 			}
+		}
+		
+		for(Client client : clientsToKill){
+			this.killClient(client);
 		}
 		
 		UiHandler.drawMap(map);
@@ -114,6 +127,10 @@ public class Server {
 			default:
 				return false;
 		}
+	}
+	
+	public int getRefreshInterval(){
+		return this.refreshInterval;
 	}
 	
 }
