@@ -49,4 +49,8 @@ public class TronMap {
 		return this.height;
 	}
 	
+	public int[][] getMap(){
+		return this.map;
+	}
+	
 }

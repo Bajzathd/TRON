@@ -1,8 +1,5 @@
 package server;
 
-import java.awt.Point;
-import java.util.Random;
-
 import client.Client;
 
 public class Main {
@@ -11,7 +8,6 @@ public class Main {
 		final int numClients = 2;
 		final int mapWidth = 150;
 		final int mapHeight = 30;
-		final int refreshInterval = 100;
 		
 		Client[] clients = new Client[numClients];
 		
@@ -21,7 +17,7 @@ public class Main {
 		
 		Server server = new Server(clients);
 		server.generateMap(mapWidth, mapHeight);
-		server.startGame(refreshInterval);
+		server.startGame();
 	}
 	
 }

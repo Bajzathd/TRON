@@ -2,11 +2,14 @@ package server;
 
 import gui.UiHandler;
 
+import java.awt.Color;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+
+import org.omg.CORBA.portable.ApplicationException;
 
 import client.Client;
 import map.TronMap;
@@ -35,25 +38,32 @@ public class Server {
 		this.width = width;
 		this.height = height;
 		
-		UiHandler.generatingMap();
+//		UiHandler.generatingMap();
 		this.map = new TronMap(width, height);
 	}
 	
 	public void startGame(){
 		Random rnd = new Random();
-		Point p;
+		Point startPosition;
+		Point nextPosition;
 		
 		for(Client client : this.aliveClients){
 			do {
-				p = new Point(rnd.nextInt(this.width), rnd.nextInt(this.height));
-			} while(this.map.getValue(p) != TronMap.FREE);
+				startPosition = new Point(rnd.nextInt(this.width), rnd.nextInt(this.height));
+				
+				client.setStart(rnd.nextInt(4));
+				this.clientPositions.put(client.getId(), startPosition);
+				
+				nextPosition = this.stepClient(client);
+			} while(
+				this.map.getValue(startPosition) != TronMap.FREE
+				&& this.map.getValue(nextPosition) != TronMap.FREE
+			);
 			
-			client.setStart(rnd.nextInt(4));
-			this.clientPositions.put(client.getId(), p);
-			this.map.setValue(p, client.getId());
+			this.map.setValue(startPosition, client.getId());
 		}
 		
-		UiHandler.drawMap(this.map);
+//		UiHandler.drawMap(this.map);
 		
 		Thread mapRefresher = new Thread(new RefreshMap(this));
 		mapRefresher.start();
@@ -87,7 +97,7 @@ public class Server {
 			this.killClient(client);
 		}
 		
-		UiHandler.drawMap(map);
+//		UiHandler.drawMap(map);
 	}
 	
 	private void killClient(final Client client){
@@ -117,20 +127,36 @@ public class Server {
 	}
 	
 	public boolean isOver(){
+		return this.aliveClients.size() < 2;
+	}
+	
+	public int getWinner() throws Exception{
 		switch(this.aliveClients.size()){
 			case 0:
-				UiHandler.tie();
-				return true;
+				//tie
+				return -1;
 			case 1:
-				UiHandler.win(this.aliveClients.get(0));
-				return true;
+				//win
+				return this.aliveClients.get(0).getId();
 			default:
-				return false;
+				throw new Exception("The game isn't ended yet");
 		}
 	}
 	
 	public int getRefreshInterval(){
 		return this.refreshInterval;
+	}
+	
+	public TronMap getMap(){
+		return this.map;
+	}
+	
+	public Client getClient(final int id){
+		return this.clients[id-1];
+	}
+	
+	public Client[] getClients(){
+		return this.clients;
 	}
 	
 }
