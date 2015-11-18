@@ -1,29 +1,34 @@
-package map;
+package game.tron.grid;
+
+import game.tron.grid.element.GridElement;
+import game.tron.grid.element.Obstacle;
 
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
-public class Tron3dMapGenerator {
+public class GridCreator {
 	
 	private int width;
 	private int height;
-	private int[][] map;
+	private double obstacleRatio;
+	
+	private int[][] grid;
 	private Rectangle mapRectangle;
 	
-	private Random rnd = new Random();
+	private Random random = new Random();
 	private ArrayList<Point> visitedPoints;
-	private ArrayList<Point> tempObstacles;
 	private int numObstacles;
 	
-	private static final double LIMIT = 0.05;
-	
-	public Tron3dMapGenerator(final int width, final int height) {
+	public GridCreator(int width, int height, double obstacleRatio) {
 		this.width = width;
 		this.height = height;
-		this.map = new int[width][height];
-		this.mapRectangle = new Rectangle(width, height);
+		this.obstacleRatio = obstacleRatio;
+		
+		grid = new int[height][width];
+		mapRectangle = new Rectangle(width, height);
 	}
 	
 	/**
@@ -32,21 +37,39 @@ public class Tron3dMapGenerator {
 	 * <0: akadály
 	 * >0: játékos
 	 */
-	public int[][] getMap(){
-		do {
-			this.generateMap();
-		} while( !this.isValidMap() );
+	public Grid getGrid(){
+		GridElement[][] elements = new GridElement[height][width];
 		
-		return this.map;
+		do {
+			this.generateGrid();
+		} while( !this.isValidGrid() );
+		
+		Obstacle newObstacle;
+		List<Obstacle> obstacles = new ArrayList<Obstacle>();
+		
+		for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                if (grid[y][x] == 0) {
+                	elements[y][x] = null;
+                } else {
+                	newObstacle = new Obstacle(x, y, grid[y][x]);
+                	
+                	obstacles.add(newObstacle);
+                	elements[y][x] = newObstacle;
+                }
+            }
+        }
+		
+		return new Grid(elements, obstacles);
 	}
 	
-	private void generateMap(){
+	private void generateGrid(){
 		this.reset();
 		
 		do {
 			this.raiseCell(
-					this.rnd.nextInt(this.width), 
-					this.rnd.nextInt(this.height), 
+					this.random.nextInt(this.width), 
+					this.random.nextInt(this.height), 
 					Integer.MAX_VALUE
 			);
 			
@@ -55,33 +78,33 @@ public class Tron3dMapGenerator {
 	
 	private void reset(){
 		//minden mezõt játszhatóra állítunk
-		for(int y = 0; y < height; y++){
-			for(int x = 0; x < width; x++){
-				this.map[x][y] = TronMap.FREE;
-			}
-		}
+		for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                grid[y][x] = 0;
+            }
+        }
 		this.numObstacles = 0;
 		this.visitedPoints = new ArrayList<Point>();
 	}
 	
-	private void raiseCell(final int x, final int y, final int d){
+	private void raiseCell(int x, int y, int d){
 		if(
 			!mapRectangle.contains(x, y)	//kilóg a mapról a pont
-			|| map[x][y] >= d				//magasabb a pont mint amire emelnénk
+			|| grid[y][x] >= d				//magasabb a pont mint amire emelnénk
 		){
 			return;
 		}
 		
-		if( map[x][y] == TronMap.FREE ){
+		if( grid[y][x] == 0 ){
 			//most lesz elfoglalva
 			numObstacles++;
 		}
 		
-		map[x][y]++;
+		grid[y][x]++;
 		
 		
 		//szomszédok max 1-el lehetnek alacsonyabban
-		int minNeighborHeight = map[x][y]-1;
+		int minNeighborHeight = grid[y][x] - 1;
 		
 		raiseCell(x-1, y, minNeighborHeight);
 		raiseCell(x+1, y, minNeighborHeight);
@@ -89,7 +112,7 @@ public class Tron3dMapGenerator {
 		raiseCell(x, y+1, minNeighborHeight);
 	}
 	
-	private boolean isValidMap(){
+	private boolean isValidGrid(){
 		try {
 			Point p = getFirstEmpty();
 			visitPoint(p.x, p.y);
@@ -102,20 +125,10 @@ public class Tron3dMapGenerator {
 		}
 	}
 	
-	private void checkDrop(){
-		try{
-			Point p = getFirstEmpty();
-			visitPoint(p.x, p.y);
-			handleLastDrop(visitedPoints.size() == (width * height - numObstacles)); //minden nem akadály pont be lett-e járva
-		} catch(Exception e){
-			handleLastDrop(false);
-		}
-	}
-	
 	private Point getFirstEmpty() throws Exception{
 		for(int y = 0; y < height; y++){
 			for(int x = 0; x < width; x++){
-				if(map[x][y] == TronMap.FREE){
+				if(grid[y][x] == 0){
 					return new Point(x, y);
 				}
 			}
@@ -129,7 +142,7 @@ public class Tron3dMapGenerator {
 		
 		if(
 			!mapRectangle.contains(x, y)	//lelóg a mapról
-			|| map[x][y] != TronMap.FREE	//nem üres pont
+			|| grid[y][x] != 0				//nem üres pont
 			|| visitedPoints.contains(p)	//már meglátogattuk
 		){
 			return;
@@ -143,20 +156,7 @@ public class Tron3dMapGenerator {
 		visitPoint(x, y+1);
 	}
 	
-	private void handleLastDrop(final boolean isValid){
-		int newMapValue = isValid ? TronMap.OBSTACLE : TronMap.FREE;
-		
-		for(Point tempObstacle : tempObstacles){
-			map[tempObstacle.x][tempObstacle.y] = newMapValue;
-		}
-		
-		if(!isValid){
-			numObstacles -= tempObstacles.size();
-		}
-	}
-	
 	private boolean isUnderLimit(){
-		return ((double)numObstacles / (width * height)) <= LIMIT; 
+		return ((double)numObstacles / (width * height)) <= obstacleRatio; 
 	}
-
 }
