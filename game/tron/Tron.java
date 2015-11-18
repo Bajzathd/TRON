@@ -27,6 +27,8 @@ public class Tron implements Runnable {
 		try {
 			engine.addPlayer(new Player());
 			engine.addPlayer(new Player());
+			engine.addAI(new AI(1));
+			engine.addAI(new AI(1));
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);

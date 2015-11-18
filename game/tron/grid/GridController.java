@@ -40,6 +40,13 @@ public class GridController {
 	
 	public void addAI(AI ai) throws Exception {
 		grid.addAI(ai);
+		switch (ai.getLevel()) {
+		case 1:
+			aliveClientControllers.add(new AIControllerLevel1(ai));
+			break;
+		default:
+			throw new Exception("Invalid AI level");
+		}
 	}
 	
 	public void update() {
