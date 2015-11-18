@@ -7,7 +7,7 @@ import game.tron.grid.GridController;
 /**
  * Random választ a lehetséges irányok közül ahol padló van
  */
-public class AIControllerLevel1 extends ClientController {
+public class AIControllerLevel1 extends AIController {
 
 	public AIControllerLevel1(AI ai) {
 		super(ai);

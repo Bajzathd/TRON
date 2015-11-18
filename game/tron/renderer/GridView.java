@@ -67,7 +67,7 @@ public class GridView extends JPanel {
         	x = trail.getX() * elementSize;
         	y = trail.getY() * elementSize;
         	
-        	g.setColor(SwingRenderer.getColor(trail.getClientId()));
+        	g.setColor(SwingRenderer.getColor(trail.getClient().getId()));
         	g.fillRect(x, y , elementSize, elementSize);
         	
 //        	if (trail.getPosition()) {

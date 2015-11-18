@@ -10,7 +10,7 @@ public class PlayerController extends ClientController {
 	
 	private Map<String, Direction> controls = new HashMap<String, Direction>();
 
-	public PlayerController(Player player) throws Exception {
+	public PlayerController(Player player) {
 		super(player);
 		
 		switch (player.getId()) {
@@ -26,8 +26,6 @@ public class PlayerController extends ClientController {
 			controls.put("S", Direction.DOWN);
 			controls.put("A", Direction.LEFT);
 			break;
-		default:
-			throw new Exception("Invalid player id: "+player.getId()+" (valid ones are 1 and 2)");
 		}
 	}
 	

@@ -5,9 +5,19 @@ public class AI extends Client {
 	
 	private int level;
 	
-	public AI(int level) {
-		super();
+	public AI(int id, int level) {
+		super(id);
 		this.level = level;
+	}
+	
+	@Override
+	public AI clone() {
+		AI clone = new AI(id, level);
+		
+		clone.alive = alive;
+		clone.direction = direction;
+		
+		return clone;
 	}
 	
 	public int getLevel() {
@@ -15,7 +25,7 @@ public class AI extends Client {
 	}
 	
 	public String toString() {
-		return "AI#"+id+" (level"+level+")";
+		return "AI (level"+level+")";
 	}
-	
+
 }

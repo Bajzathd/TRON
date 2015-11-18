@@ -2,6 +2,8 @@ package game.tron;
 
 import game.tron.client.AI;
 import game.tron.client.Player;
+import game.tron.grid.GridControllerWithView;
+import game.tron.utility.Log;
 
 public class Tron implements Runnable {
 	/**
@@ -19,50 +21,57 @@ public class Tron implements Runnable {
 	/**
 	 * Képfrissítés millisecben
 	 */
-	public static final long FRAME_LENGTH = 200000000L;
-	
-	private GameEngine engine = new GameEngine(WIDTH, HEIGHT, OBSTACLE_RATIO);
-	
+	public static final long FRAME_LENGTH = 20000000L;
+	/**
+	 * Hány kör fusson le
+	 */
+	public static final int ROUNDS = 1;
+
+	private GridControllerWithView engine = new GridControllerWithView(WIDTH,
+			HEIGHT, OBSTACLE_RATIO);
+	private Log log = new Log();
+
 	public Tron() {
-		try {
-			engine.addPlayer(new Player());
-			engine.addPlayer(new Player());
-			engine.addAI(new AI(1));
-			engine.addAI(new AI(1));
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		engine.start();
+		engine.getGrid().setClient1(new Player(1));
+		engine.getGrid().setClient2(new Player(2));
+		// engine.addAI(new AI(1));
+		// engine.addAI(new AI(1));
 	}
 
 	public void run() {
 		long lastTime;
 		long delta;
-		
-		while (! engine.isOver()) {
-			lastTime = System.nanoTime();
-			
-			// Játék állapot frissítés
-			engine.update();
-			// Renderelés
-			engine.render();
-			
-			delta = System.nanoTime() - lastTime;
-			if (delta < FRAME_LENGTH) {
-				try {
-					Thread.sleep((FRAME_LENGTH - delta) / 1000000L);
-				} catch (Exception ex) {
-					// Interrupted
+
+		for (int round = 1; round <= ROUNDS; round++) {
+			engine.start();
+			if (round == 1) {
+				log.init(engine.getGrid().getAliveClients());
+			}
+			while (!engine.isOver()) {
+				lastTime = System.nanoTime();
+
+				// Játék állapot frissítés
+				engine.update();
+				// Renderelés
+				engine.render();
+
+				delta = System.nanoTime() - lastTime;
+				if (delta < FRAME_LENGTH) {
+					try {
+						Thread.sleep((FRAME_LENGTH - delta) / 1000000L);
+					} catch (Exception ex) {
+						// Interrupted
+					}
 				}
 			}
+			engine.showResults();
+			log.addResult(engine.getGrid());
 		}
-		engine.showResults();
+		// log.writeToFile();
 	}
-	
+
 	public static void main(String[] args) {
-		Thread t = new Thread(new Tron());
-		t.start();
-    }
+		new Thread(new Tron()).start();
+	}
 
 }

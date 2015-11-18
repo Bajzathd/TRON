@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.util.List;
 
 import game.tron.client.Client;
-import game.tron.client.ClientController;
 
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
@@ -21,11 +20,11 @@ public class InfoView extends JLabel {
 		setVisible(true);
 	}
 	
-	public void showResults(List<ClientController> aliveClientControllers) {
-		if (aliveClientControllers.size() == 0) {
+	public void showResults(List<Client> aliveClients) {
+		if (aliveClients.size() == 0) {
 			setText("Tie");
 		} else {
-			Client winner = aliveClientControllers.get(0).getClient();
+			Client winner = aliveClients.get(0);
 			setForeground(SwingRenderer.getColor(winner.getId()));
 			setText(winner+" won");
 		}

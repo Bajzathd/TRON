@@ -7,17 +7,21 @@ import java.awt.Point;
 
 public abstract class Client {
 	
-	public static int idCounter = 1;
-	
 	protected int id;
 	protected Direction direction;
 	protected boolean alive;
 	
 	private Point position = new Point();
 	
-	public Client(){
-		this.id = idCounter++;
+	public Client(int id){
+		if (id != 1 && id != 2) {
+			System.out.println("Invalid client id, either choose 1 or 2");
+			System.exit(1);
+		}
+		this.id = id;
 	}
+	
+	public abstract Client clone();
 	
 	public void setStart(int x, int y, Direction startDirection){
 		alive = true;
@@ -65,7 +69,7 @@ public abstract class Client {
 	}
 	
 	public Trail getTrail() {
-		return new Trail((Point) position.clone(), id);
+		return new Trail((Point) position.clone(), clone());
 	}
 	
 	public void kill(){

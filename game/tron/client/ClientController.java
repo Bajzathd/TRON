@@ -24,4 +24,19 @@ public class ClientController {
 		return client;
 	}
 	
+	public static PlayerController get(Player player) {
+		return new PlayerController(player);
+	}
+	
+	public static AIController get(AI ai) {
+		switch (ai.getLevel()) {
+		case 1:
+			return new AIControllerLevel1(ai);
+		default:
+			System.out.println("Invalid AI level");
+			System.exit(1);
+		}
+		return null;
+	}
+	
 }

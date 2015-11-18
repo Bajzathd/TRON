@@ -4,7 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.util.List;
 
-import game.tron.client.ClientController;
+import game.tron.client.Client;
 import game.tron.grid.Grid;
 
 import javax.swing.JFrame;
@@ -22,9 +22,7 @@ public class SwingRenderer extends JFrame implements Renderer {
 	 */
 	private static Color[] colors = {
 		new Color(0x11a1ee),
-		new Color(0x2edc6b),
-		new Color(0xf79b08),
-		new Color(0xe9165c)
+		new Color(0xf79b08)
 	};
 	
 	private GridView gridView;
@@ -55,14 +53,14 @@ public class SwingRenderer extends JFrame implements Renderer {
 	public void render() {
 		gridView.repaint();
 	}
-
-	@Override
-	public void showResults(List<ClientController> aliveClientControllers) {
-		infoView.showResults(aliveClientControllers);
-	}
 	
+	@Override
+	public void showResults(List<Client> aliveClients) {
+		infoView.showResults(aliveClients);
+	}
+
 	public static Color getColor(int clientId) {
 		return colors[clientId - 1];
 	}
-	
+
 }
