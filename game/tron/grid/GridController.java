@@ -3,6 +3,9 @@ package game.tron.grid;
 import java.util.Iterator;
 
 import game.tron.client.Client;
+import game.tron.client.ClientController;
+import game.tron.client.ai.AI;
+import game.tron.client.player.Player;
 
 public class GridController {
 
@@ -22,7 +25,11 @@ public class GridController {
 
 	public void update() {
 		for (Client client : grid.getAliveClients()) {
-			client.step();
+			if (client instanceof Player) {
+				ClientController.get((Player) client).step(this);
+			} else {
+				ClientController.get((AI) client).step(this);
+			}
 		}
 		evaluate();
 	}

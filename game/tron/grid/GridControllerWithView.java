@@ -2,8 +2,9 @@ package game.tron.grid;
 
 import game.tron.client.Client;
 import game.tron.client.ClientController;
-import game.tron.client.Player;
-import game.tron.client.PlayerKeyListener;
+import game.tron.client.player.Player;
+import game.tron.client.player.PlayerController;
+import game.tron.client.player.PlayerKeyListener;
 import game.tron.renderer.Renderer;
 import game.tron.renderer.SwingRenderer;
 
@@ -28,7 +29,8 @@ public class GridControllerWithView extends GridController {
 			if (client instanceof Player) {
 				Player player = (Player) client;
 				renderer.addKeyListener(new PlayerKeyListener(
-						player, ClientController.get(player).getControls()));
+						player, 
+						((PlayerController) ClientController.get(player)).getControls()));
 			}
 		}
 	}

@@ -9,9 +9,9 @@ import java.util.List;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 
 import game.tron.client.Client;
-import game.tron.grid.element.GridElement;
-import game.tron.grid.element.Obstacle;
-import game.tron.grid.element.Trail;
+import game.tron.gridelement.GridElement;
+import game.tron.gridelement.Obstacle;
+import game.tron.gridelement.Trail;
 import game.tron.utility.Direction;
 
 public class Grid {
@@ -37,19 +37,31 @@ public class Grid {
 	}
 
 	public Grid clone() {
-		GridElement[][] elements = new GridElement[this.elements[0].length][];
+		GridElement[][] elements = new GridElement[this.elements.length][];
 		for (int index = 0; index < this.elements.length; index++) {
 			elements[index] = Arrays.copyOf(this.elements[index],
 					this.elements[index].length);
 		}
-		List<Obstacle> obstacles = new ArrayList<Obstacle>(this.obstacles);
+		
+		List<Obstacle> obstacles = new ArrayList<Obstacle>();
+		for (Obstacle obstacle : this.obstacles) {
+			obstacles.add(obstacle);
+		}
 
 		Grid clone = new Grid(elements, obstacles);
 
+		clone.gridRectangle = (Rectangle) gridRectangle.clone();
+		clone.numFloors = numFloors;
 		clone.client1 = client1.clone();
 		clone.client2 = client2.clone();
+		
+		clone.aliveClients = new ArrayList<Client>();
+		for (Client aliveClient : aliveClients) {
+			clone.aliveClients.add(aliveClient);
+		}
+		
 		clone.trails = new ArrayList<Trail>(trails);
-
+		
 		return clone;
 	}
 
@@ -60,6 +72,20 @@ public class Grid {
 	public void setClient2(Client client) {
 		client2 = client;
 	}
+	
+	public Client getClient(int clientId) {
+		if (client1.getId() == clientId) {
+			return client1;
+		}
+		return client2;
+	}
+	
+	public Client getEnemy(int clientId) {
+		if (client1.getId() == clientId) {
+			return client2;
+		}
+		return client1;
+	}
 
 	public void start() {
 		if (client1 == null || client2 == null) {
@@ -68,10 +94,12 @@ public class Grid {
 		}
 
 		client1.setStart(new Point(0, 0), Direction.RIGHT);
+		addTrail(client1.getTrail());
+		aliveClients.add(client1);
+		
 		client2.setStart(new Point(gridRectangle.width - 1,
 				gridRectangle.height - 1), Direction.LEFT);
-
-		aliveClients.add(client1);
+		addTrail(client2.getTrail());
 		aliveClients.add(client2);
 	}
 
@@ -121,7 +149,7 @@ public class Grid {
 	public List<Direction> getValidDirections(Point p) throws NotFound {
 		List<Direction> validDirections = new ArrayList<Direction>();
 
-		for (Direction direction : Direction.getAllShuffled()) {
+		for (Direction direction : Direction.values()) {
 			if (isFloor(direction.getTranslatedPoint(p))) {
 				validDirections.add(direction);
 			}
@@ -170,6 +198,24 @@ public class Grid {
 		for (Direction direction : Direction.values()) {
 			visitPoint(direction.getTranslatedPoint(p), visitedPoints);
 		}
+	}
+	
+	public String toString() {
+		String grid = "";
+		
+		for (int y = -1; y <= gridRectangle.height; y++) {
+			for (int x = -1; x <= gridRectangle.width; x++) {
+				GridElement element = getElement(new Point(x, y));
+				if (element == null) {
+					grid += " ";
+				} else {
+					grid += element.toString();
+				}
+			}
+			grid += "\n";
+		}
+		
+		return grid;
 	}
 
 }

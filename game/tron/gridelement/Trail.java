@@ -1,4 +1,4 @@
-package game.tron.grid.element;
+package game.tron.gridelement;
 
 import game.tron.client.Client;
 
@@ -20,5 +20,9 @@ public class Trail extends GridElement {
 	
 	public Client getClient() {
 		return client;
+	}
+	
+	public String toString() {
+		return Integer.toString(client.getId());
 	}
 }

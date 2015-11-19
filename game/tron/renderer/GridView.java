@@ -7,8 +7,8 @@ import java.awt.Graphics;
 import javax.swing.JPanel;
 
 import game.tron.grid.Grid;
-import game.tron.grid.element.Obstacle;
-import game.tron.grid.element.Trail;
+import game.tron.gridelement.Obstacle;
+import game.tron.gridelement.Trail;
 
 public class GridView extends JPanel {
 	

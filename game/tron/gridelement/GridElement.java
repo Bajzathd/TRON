@@ -1,4 +1,4 @@
-package game.tron.grid.element;
+package game.tron.gridelement;
 
 import java.awt.Point;
 

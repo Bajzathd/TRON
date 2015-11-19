@@ -1,7 +1,7 @@
 package game.tron;
 
-import game.tron.client.AI;
-import game.tron.client.Player;
+import game.tron.client.ai.AI;
+import game.tron.client.player.Player;
 import game.tron.grid.GridControllerWithView;
 import game.tron.utility.Log;
 
@@ -9,11 +9,11 @@ public class Tron implements Runnable {
 	/**
 	 * Grid szélessége
 	 */
-	public static final int WIDTH = 96;
+	public static final int WIDTH = 20;
 	/**
 	 * Grid magassága
 	 */
-	public static final int HEIGHT = 64;
+	public static final int HEIGHT = 20;
 	/**
 	 * Maximális akadály arány
 	 */
@@ -21,7 +21,7 @@ public class Tron implements Runnable {
 	/**
 	 * Képfrissítés millisecben
 	 */
-	public static final long FRAME_LENGTH = 20000000L;
+	public static final long FRAME_LENGTH = 200000000L;
 	/**
 	 * Hány kör fusson le
 	 */
@@ -33,9 +33,9 @@ public class Tron implements Runnable {
 
 	public Tron() {
 		engine.getGrid().setClient1(new Player(1));
-		engine.getGrid().setClient2(new Player(2));
-		// engine.addAI(new AI(1));
-		// engine.addAI(new AI(1));
+//		engine.getGrid().setClient2(new Player(2));
+//		engine.getGrid().setClient1(new AI(1, 2));
+		engine.getGrid().setClient2(new AI(2, 4));
 	}
 
 	public void run() {

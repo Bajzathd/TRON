@@ -1,6 +1,6 @@
 package game.tron.client;
 
-import game.tron.grid.element.Trail;
+import game.tron.gridelement.Trail;
 import game.tron.utility.Direction;
 
 import java.awt.Point;
@@ -11,7 +11,7 @@ public abstract class Client {
 	protected Direction direction;
 	protected boolean alive;
 	
-	private Point position = new Point();
+	protected Point position = new Point();
 	
 	public Client(int id){
 		if (id != 1 && id != 2) {

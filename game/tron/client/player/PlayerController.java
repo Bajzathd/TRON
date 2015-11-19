@@ -1,5 +1,6 @@
-package game.tron.client;
+package game.tron.client.player;
 
+import game.tron.client.ClientController;
 import game.tron.utility.Direction;
 
 import java.util.HashMap;

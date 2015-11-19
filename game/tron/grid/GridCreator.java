@@ -1,7 +1,7 @@
 package game.tron.grid;
 
-import game.tron.grid.element.GridElement;
-import game.tron.grid.element.Obstacle;
+import game.tron.gridelement.GridElement;
+import game.tron.gridelement.Obstacle;
 import game.tron.utility.Direction;
 
 import java.awt.Point;

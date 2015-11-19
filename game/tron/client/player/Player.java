@@ -1,4 +1,6 @@
-package game.tron.client;
+package game.tron.client.player;
+
+import game.tron.client.Client;
 
 public class Player extends Client {
 	
@@ -9,6 +11,7 @@ public class Player extends Client {
 	public Player clone() {
 		Player clone = new Player(id);
 		
+		clone.position = position;
 		clone.alive = alive;
 		clone.direction = direction;
 		

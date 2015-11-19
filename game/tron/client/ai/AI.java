@@ -1,4 +1,6 @@
-package game.tron.client;
+package game.tron.client.ai;
+
+import game.tron.client.Client;
 
 
 public class AI extends Client {
@@ -14,6 +16,7 @@ public class AI extends Client {
 	public AI clone() {
 		AI clone = new AI(id, level);
 		
+		clone.position = position;
 		clone.alive = alive;
 		clone.direction = direction;
 		

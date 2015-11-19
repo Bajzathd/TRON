@@ -1,5 +1,10 @@
 package game.tron.client;
 
+import game.tron.client.ai.AI;
+import game.tron.client.ai.RandomAIController;
+import game.tron.client.ai.MinimaxAIController;
+import game.tron.client.player.Player;
+import game.tron.client.player.PlayerController;
 import game.tron.grid.GridController;
 
 import java.awt.Point;
@@ -24,18 +29,19 @@ public class ClientController {
 		return client;
 	}
 	
-	public static PlayerController get(Player player) {
+	public static ClientController get(Player player) {
 		return new PlayerController(player);
 	}
 	
-	public static AIController get(AI ai) {
-		switch (ai.getLevel()) {
-		case 1:
-			return new AIControllerLevel1(ai);
-		default:
-			System.out.println("Invalid AI level");
-			System.exit(1);
+	public static ClientController get(AI ai) {
+		int level = ai.getLevel();
+		
+		if (level <= 1) {
+			return new RandomAIController(ai);
+		} else if (level > 1) {
+			return new MinimaxAIController(ai);
 		}
+		
 		return null;
 	}
 	

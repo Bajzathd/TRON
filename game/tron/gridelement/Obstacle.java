@@ -1,4 +1,4 @@
-package game.tron.grid.element;
+package game.tron.gridelement;
 
 import java.awt.Point;
 
@@ -19,5 +19,9 @@ public class Obstacle extends GridElement {
 	
 	public int getHeight() {
 		return this.height;
+	}
+	
+	public String toString() {
+		return "#";
 	}
 }

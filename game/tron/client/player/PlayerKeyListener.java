@@ -1,4 +1,4 @@
-package game.tron.client;
+package game.tron.client.player;
 
 import game.tron.utility.Direction;
 
