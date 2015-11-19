@@ -35,18 +35,24 @@ public class GridController {
 	}
 
 	public void evaluate() {
-		Iterator<Client> it = grid.getAliveClients().iterator();
-		Client client;
-
-		while (it.hasNext()) {
-			client = it.next();
-
-			if (grid.isFloor(client.getPosition())) {
-				grid.addTrail(client.getTrail());
-			} else {
-				it.remove();
-				grid.killClient(client);
-			}
+		Client client1 = grid.getClient1();
+		Client client2 = grid.getClient2();
+		
+		if (client1.getPosition().equals(client2.getPosition())) {
+			grid.getAliveClients().clear();
+			client1.kill();
+			client2.kill();
+		} else {
+			handleClient(client1);
+			handleClient(client2);
+		}
+	}
+	
+	private void handleClient(Client client) {
+		if (grid.isFloor(client.getPosition())) {
+			grid.addTrail(client.getTrail());
+		} else {
+			grid.killClient(client);
 		}
 	}
 

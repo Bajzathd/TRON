@@ -11,11 +11,11 @@ import java.util.List;
 
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 
-public class StepTree {
+public class MinimaxTree {
 	
     private Node root;
 
-    public StepTree(GridController gridController, int clientId) {
+    public MinimaxTree(GridController gridController, int clientId) {
         root = new Node(null);
         root.isMyTurn = true;
         root.clientId = clientId;
@@ -26,17 +26,28 @@ public class StepTree {
     	return root;
     }
     
-    public void grade() {
-    	evaluate(root, Integer.MIN_VALUE, Integer.MAX_VALUE);
+    public Direction getDirection() {
+    	Direction direction = null;
+    	double maxGrade = Integer.MIN_VALUE;
+    	
+    	evaluate(root, Double.MIN_VALUE, Double.MAX_VALUE);
     	root.orderChildren();
-    	root.print("", true);
+    	
+    	for (Node child : root.getChildren()) {
+    		if (child.grade != null && child.grade > maxGrade) {
+    			maxGrade = child.grade;
+    			direction = child.direction;
+    		}
+    	}
+    	System.out.println("Go "+direction);
+    	return direction;
     }
     
-    private int evaluate(Node node, int alpha, int beta) {
+    private double evaluate(Node node, double alpha, double beta) {
     	if (node.grade != null) {
     		return node.grade;
     	}
-    	if (node.isMyTurn) {
+    	if (! node.isMyTurn) {
     		for (Node child : node.children) {
     			beta = Math.min(beta, evaluate(child, alpha, beta));
     			if (beta <= alpha) {
@@ -59,18 +70,8 @@ public class StepTree {
     	}
     }
     
-    public Direction getDirection() {
-    	Direction direction = null;
-    	int maxGrade = Integer.MIN_VALUE;
-    	
-    	for (Node child : root.getChildren()) {
-    		if (child.grade > maxGrade) {
-    			maxGrade = child.grade;
-    			direction = child.direction;
-    		}
-    	}
-    	
-    	return direction;
+    public String toString() {
+    	return root.print("", true);
     }
     
     public class Node {
@@ -81,7 +82,7 @@ public class StepTree {
         private List<Node> children = new ArrayList<Node>();
         
         public GridController gridController;
-        public Integer grade = null;
+        public Double grade = null;
         
         private Node(Direction direction) {
         	this.direction = direction;
@@ -90,6 +91,7 @@ public class StepTree {
         public void setChildren() {
         	List<Direction> validDirections;
         	Client client;
+        	
 			try {
 				if (isMyTurn) {
 					client = gridController.getGrid().getClient(clientId);
@@ -115,6 +117,7 @@ public class StepTree {
 					}
 		        	client.trySetDirection(direction);
 		        	client.step();
+		        	node.gridController.evaluate();
 		        	
 		        	children.add(node);
 				}
@@ -125,40 +128,43 @@ public class StepTree {
         
         public void grade() {
         	int numAliveClients = gridController.getNumAliveClients();
+        	int numFloors = gridController.getGrid().getNumFloors();
         	
         	if (numAliveClients == 0) {
-        		System.out.println("TIE");
-        		grade = -gridController.getGrid().getNumFloors() / 2; // TIE
+//        		System.out.println("TIE");
+        		grade = -numFloors / 2.0; // TIE
         	} else if (numAliveClients == 1) {
         		Client winner = gridController.getGrid().getAliveClients().get(0);
         		if (winner.getId() == clientId) {
-        			System.out.println("WIN");
-        			grade = gridController.getGrid().getNumFloors(); // WIN
+//        			System.out.println("WIN");
+        			grade = (double) numFloors; // WIN
         		} else {
-        			System.out.println("LOSE");
-        			grade = -gridController.getGrid().getNumFloors(); // LOSE
+//        			System.out.println("LOSE");
+        			grade = (double) -numFloors; // LOSE
         		}
         	} else {
         		Client client = gridController.getGrid().getClient(clientId);
         		Client enemy = gridController.getGrid().getEnemy(clientId);
         		
         		List<Point> clientAccessableFloors = gridController.getGrid().
-        				getAccessableFloors(client.getPosition());
-        		Point nextEnemyPosition = enemy.getDirection().getTranslatedPoint(enemy.getPosition());
+        				getAccessableFloors(client);
+        		List<Point> enemyAccessableFloors = gridController.getGrid().
+        				getAccessableFloors(enemy);
         		
-        		if (clientAccessableFloors.contains(nextEnemyPosition)) {
+        		boolean isSeparated = clientAccessableFloors.size() != 
+        				enemyAccessableFloors.size();
+        		
+        		if (! isSeparated) {
         			// nincsenek elválasztva egymástól
         			double distance = client.getPosition().distance(enemy.getPosition());
         			// közelítsünk az ellenfélhez
         			System.out.println("KÖZELÍT");
-        			grade = (int) (gridController.getGrid().getNumFloors() / distance);
+        			grade = (double) numFloors / distance;
         		} else {
         			// el vannak választva
-        			List<Point> enemyAccessableFloors = gridController.getGrid().
-            				getAccessableFloors(enemy.getPosition());
-        			// mennyivel ér el több mezőt mint az ellenfél
         			System.out.println("SZEPARÁLT");
-        			grade = clientAccessableFloors.size() - enemyAccessableFloors.size();
+        			// mennyivel ér el több mezőt mint az ellenfél
+        			grade = (double) (clientAccessableFloors.size() - enemyAccessableFloors.size());
         		}
         	}
         }
@@ -182,14 +188,19 @@ public class StepTree {
         	return children;
         }
         
-        private void print(String prefix, boolean isTail) {
-            System.out.println(prefix + (isTail ? "'--- " : "|--- ") + direction + "(" + grade + ")");
+        private String print(String prefix, boolean isTail) {
+        	String node = prefix + (isTail ? "'--- " : "|--- ") + 
+            		(isMyTurn ? "Enemy went " : "Client went ") + direction + "(" + grade + ")\n";
+        	
             for (int i = 0; i < children.size() - 1; i++) {
-                children.get(i).print(prefix + (isTail ? "    " : "|   "), false);
+                node += children.get(i).print(prefix + (isTail ? "    " : "|   "), false);
             }
             if (children.size() > 0) {
-                children.get(children.size() - 1).print(prefix + (isTail ?"    " : "|   "), true);
+                node += children.get(children.size() - 1).print(
+                		prefix + (isTail ? "    " : "|   "), true);
             }
+            
+            return node;
         }
         
     }
@@ -210,10 +221,12 @@ public class StepTree {
 		public int compare(Node node1, Node node2) {
 			if (node1.grade == null && node2.grade == null) {
 				return 0;
-			} else if (node1.grade == null) {
-				return yes;
-			} else if (node2.grade == null) {
-				return no;
+			}
+			if (node1.grade == null) {
+				return 1;
+			}
+			if (node2.grade == null) {
+				return -1;
 			}
 			return (node1.grade > node2.grade) ? yes : no;
 		}

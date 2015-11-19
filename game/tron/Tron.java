@@ -9,7 +9,7 @@ public class Tron implements Runnable {
 	/**
 	 * Grid szélessége
 	 */
-	public static final int WIDTH = 20;
+	public static final int WIDTH = 30;
 	/**
 	 * Grid magassága
 	 */
@@ -32,9 +32,9 @@ public class Tron implements Runnable {
 	private Log log = new Log();
 
 	public Tron() {
-		engine.getGrid().setClient1(new Player(1));
+//		engine.getGrid().setClient1(new Player(1));
 //		engine.getGrid().setClient2(new Player(2));
-//		engine.getGrid().setClient1(new AI(1, 2));
+		engine.getGrid().setClient1(new AI(1, 4));
 		engine.getGrid().setClient2(new AI(2, 4));
 	}
 

@@ -177,10 +177,13 @@ public class Grid {
 		return numFloors;
 	}
 
-	public List<Point> getAccessableFloors(Point startPoint) {
+	public List<Point> getAccessableFloors(Client client) {
 		List<Point> visitedPoints = new ArrayList<Point>();
 
-		visitPoint(startPoint, visitedPoints);
+		for (Direction direction : Direction.values()) {
+			visitPoint(direction.getTranslatedPoint(client.getPosition()), 
+					visitedPoints);
+		}
 
 		return visitedPoints;
 	}

@@ -39,7 +39,8 @@ public abstract class Client {
 	}
 	
 	public void trySetDirection(Direction direction){
-		if (! direction.isOpposite(this.direction)) {
+		if (direction != null && 
+				! direction.isOpposite(this.direction)) {
 			this.direction = direction;
 		}
 	}
