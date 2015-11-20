@@ -19,20 +19,23 @@ public class MinimaxAIController extends AIController {
 	@Override
 	public void step(GridController gridController) {
 		MinimaxTree stepTree = new MinimaxTree(gridController, client.getId());
+		Direction bestDirection = client.getDirection();
 		
-//		for (int round = 1; round <= depth; round++) {
-			handleNode(stepTree.getRoot(), depth);
-//		}
-		client.trySetDirection(stepTree.getDirection());
+		for (int round = 1; round <= depth; round++) {
+			handleNode(stepTree.getRoot(), round);
+			bestDirection = stepTree.getDirection();
+		}
 		
-		System.out.println(stepTree);
+		System.out.println(bestDirection);
+		
+		client.trySetDirection(bestDirection);
 		
 		super.step(gridController);
 	}
 	
 	/**
-	 * Adott pozícióból adott mélységig elkészíti a részfát
-	 * @param node pozíció
+	 * Adott állásból adott mélységig elkészíti a részfát
+	 * @param node állás
 	 * @param limit mélység
 	 */
 	private void handleNode(Node node, int limit) {
@@ -44,12 +47,11 @@ public class MinimaxAIController extends AIController {
 			node.grade();
 			return;
 		}
+		// gyerekeit legenerálja
+		node.setChildren();
+		
 		if (node.getChildren().isEmpty()) {
-			// ha nincsenek gyerekei akkor beállítja õket
-			node.setChildren();
-		}
-		if (node.getChildren().isEmpty()) {
-			// ha továbbra sincsenek akkor osztályoz (végállapothoz ért)
+			// ha nincsenek gyerekei akkor osztályoz (végállapothoz ért)
 			node.grade();
 		}
 		Iterator<Node> it = node.getChildren().iterator();

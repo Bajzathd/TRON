@@ -30,8 +30,10 @@ public class MinimaxTree {
     	Direction direction = null;
     	double maxGrade = Integer.MIN_VALUE;
     	
-    	evaluate(root, Double.MIN_VALUE, Double.MAX_VALUE);
+    	System.out.println(this);
+    	evaluate(root, -Double.MAX_VALUE, Double.MAX_VALUE);
     	root.orderChildren();
+    	System.out.println(this);
     	
     	for (Node child : root.getChildren()) {
     		if (child.grade != null && child.grade > maxGrade) {
@@ -39,25 +41,31 @@ public class MinimaxTree {
     			direction = child.direction;
     		}
     	}
-    	System.out.println("Go "+direction);
+    	
+    	resetGrade(root);
+    	
     	return direction;
     }
     
+    private void resetGrade(Node node) {
+    	node.grade = null;
+    	for (Node child : node.children) {
+    		resetGrade(child);
+    	}
+    }
+    
+    /**
+     * Alfa-béta vágás algoritmus
+     * @param node állás
+     * @param alpha legjobb kliens lépés értéke
+     * @param beta legjobb ellenfél lépés értéke
+     * @return állás értéke a kliens szemszögéből
+     */
     private double evaluate(Node node, double alpha, double beta) {
     	if (node.grade != null) {
     		return node.grade;
     	}
-    	if (! node.isMyTurn) {
-    		for (Node child : node.children) {
-    			beta = Math.min(beta, evaluate(child, alpha, beta));
-    			if (beta <= alpha) {
-    				node.grade = alpha;
-        			return alpha;
-        		}
-    		}
-    		node.grade = beta;
-    		return beta;
-    	} else {
+    	if (node.isMyTurn) {
     		for (Node child : node.children) {
     			alpha = Math.max(alpha, evaluate(child, alpha, beta));
     			if (beta <= alpha) {
@@ -67,6 +75,16 @@ public class MinimaxTree {
     		}
     		node.grade = alpha;
     		return alpha;
+    	} else {
+    		for (Node child : node.children) {
+    			beta = Math.min(beta, evaluate(child, alpha, beta));
+    			if (beta <= alpha) {
+    				node.grade = alpha;
+        			return alpha;
+        		}
+    		}
+    		node.grade = beta;
+    		return beta;
     	}
     }
     
@@ -89,6 +107,10 @@ public class MinimaxTree {
         }
         
         public void setChildren() {
+        	if (! children.isEmpty()) {
+        		return;
+        	}
+        	
         	List<Direction> validDirections;
         	Client client;
         	
@@ -131,15 +153,12 @@ public class MinimaxTree {
         	int numFloors = gridController.getGrid().getNumFloors();
         	
         	if (numAliveClients == 0) {
-//        		System.out.println("TIE");
         		grade = -numFloors / 2.0; // TIE
         	} else if (numAliveClients == 1) {
         		Client winner = gridController.getGrid().getAliveClients().get(0);
         		if (winner.getId() == clientId) {
-//        			System.out.println("WIN");
         			grade = (double) numFloors; // WIN
         		} else {
-//        			System.out.println("LOSE");
         			grade = (double) -numFloors; // LOSE
         		}
         	} else {
@@ -158,13 +177,12 @@ public class MinimaxTree {
         			// nincsenek elválasztva egymástól
         			double distance = client.getPosition().distance(enemy.getPosition());
         			// közelítsünk az ellenfélhez
-        			System.out.println("KÖZELÍT");
         			grade = (double) numFloors / distance;
         		} else {
         			// el vannak választva
-        			System.out.println("SZEPARÁLT");
+        			int difference = clientAccessableFloors.size() - enemyAccessableFloors.size();
         			// mennyivel ér el több mezőt mint az ellenfél
-        			grade = (double) (clientAccessableFloors.size() - enemyAccessableFloors.size());
+        			grade = (double) difference;
         		}
         	}
         }
@@ -190,7 +208,7 @@ public class MinimaxTree {
         
         private String print(String prefix, boolean isTail) {
         	String node = prefix + (isTail ? "'--- " : "|--- ") + 
-            		(isMyTurn ? "Enemy went " : "Client went ") + direction + "(" + grade + ")\n";
+            		(isMyTurn ? "Enemy " : "Client ") + "can go " + direction + "(" + grade + ")\n";
         	
             for (int i = 0; i < children.size() - 1; i++) {
                 node += children.get(i).print(prefix + (isTail ? "    " : "|   "), false);

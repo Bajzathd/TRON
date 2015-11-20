@@ -109,6 +109,12 @@ public class Grid {
 	}
 
 	public void addTrail(Trail trail) {
+		for (Trail otherTrail : trails) {
+			if (trail.getClient().getId() == 
+					otherTrail.getClient().getId()) {
+				otherTrail.isHead = false;
+			}
+		}
 		trails.add(trail);
 		elements[trail.getY()][trail.getX()] = trail;
 		numFloors--;

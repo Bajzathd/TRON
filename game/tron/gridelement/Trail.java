@@ -6,6 +6,7 @@ import java.awt.Point;
 
 public class Trail extends GridElement {
 	
+	public boolean isHead = true;
 	private Client client;
 	
 	public Trail(int x, int y, Client client) {
