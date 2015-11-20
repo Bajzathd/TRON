@@ -19,7 +19,7 @@ public class Player extends Client {
 	}
 	
 	public String toString() {
-		return "Player";
+		return "Player#"+id;
 	}
 
 }

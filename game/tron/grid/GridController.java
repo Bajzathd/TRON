@@ -1,7 +1,5 @@
 package game.tron.grid;
 
-import java.util.Iterator;
-
 import game.tron.client.Client;
 import game.tron.client.ClientController;
 import game.tron.client.ai.AI;

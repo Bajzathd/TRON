@@ -9,31 +9,23 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 public class Log {
 	
-	public boolean isInited = false;
-	
-	private List<Client> clients = new ArrayList<Client>();
+	private Client client1;
+	private Client client2;
 
 	/**
 	 * 0:	döntetlenek száma
 	 * >0:	adott kliens nyert köreinek száma
 	 */
-	private int[] results;
+	private int[] results = new int[3];
 	
-	public void init(List<Client> clients) {
-		this.clients = new ArrayList<Client>(clients);
-		
-		results = new int[clients.size() + 1];
-		for (int i = 0; i < results.length; i++) {
-			results[i] = 0;
-		}
-		
-		isInited = true;
+	public Log(Client client1, Client client2) {
+		this.client1 = client1;
+		this.client2 = client2;
 	}
 	
 	public void addResult(Grid grid) {
@@ -53,13 +45,11 @@ public class Log {
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(
 		              new FileOutputStream("log/"+timeStamp+".log"), "utf-8"));
-			Client client;
 			
 			writer.write("Ties: "+results[0]+"\n");
-			for (int i = 0; i < clients.size(); i++) {
-				client = clients.get(i);
-				writer.write(client+" wins: "+results[client.getId()]+"\n");
-			}
+			writer.write(client1+" won "+results[1]+" times\n");
+			writer.write(client2+" won "+results[2]+" times");
+			
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		} finally {
@@ -69,6 +59,10 @@ public class Log {
 				ex.printStackTrace();
 			}
 		}
+	}
+	
+	public int[] getResults() {
+		return results;
 	}
 	
 }

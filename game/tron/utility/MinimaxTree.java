@@ -13,96 +13,95 @@ import org.omg.CosNaming.NamingContextPackage.NotFound;
 
 public class MinimaxTree {
 	
-    private Node root;
+    private State startState;
 
     public MinimaxTree(GridController gridController, int clientId) {
-        root = new Node(null);
-        root.isMyTurn = true;
-        root.clientId = clientId;
-        root.gridController = gridController.clone();
+        startState = new State(null);
+        startState.isMyTurn = true;
+        startState.clientId = clientId;
+        startState.gridController = gridController.clone();
     }
     
-    public Node getRoot() {
-    	return root;
+    public State getStartState() {
+    	return startState;
     }
     
     public Direction getDirection() {
     	Direction direction = null;
     	double maxGrade = Integer.MIN_VALUE;
     	
-    	System.out.println(this);
-    	evaluate(root, -Double.MAX_VALUE, Double.MAX_VALUE);
-    	root.orderChildren();
-    	System.out.println(this);
+    	evaluate(startState, -Double.MAX_VALUE, Double.MAX_VALUE);
+    	startState.orderChildren();
     	
-    	for (Node child : root.getChildren()) {
+    	for (State child : startState.getChildren()) {
     		if (child.grade != null && child.grade > maxGrade) {
     			maxGrade = child.grade;
     			direction = child.direction;
     		}
     	}
     	
-    	resetGrade(root);
+    	resetGrade(startState);
     	
     	return direction;
     }
     
-    private void resetGrade(Node node) {
-    	node.grade = null;
-    	for (Node child : node.children) {
+    private void resetGrade(State state) {
+    	state.grade = null;
+    	for (State child : state.children) {
     		resetGrade(child);
     	}
     }
     
     /**
      * Alfa-béta vágás algoritmus
-     * @param node állás
+     * @param state állás
      * @param alpha legjobb kliens lépés értéke
      * @param beta legjobb ellenfél lépés értéke
      * @return állás értéke a kliens szemszögéből
      */
-    private double evaluate(Node node, double alpha, double beta) {
-    	if (node.grade != null) {
-    		return node.grade;
+    private double evaluate(State state, double alpha, double beta) {
+    	if (state.grade != null) {
+    		return state.grade;
     	}
-    	if (node.isMyTurn) {
-    		for (Node child : node.children) {
+    	if (state.isMyTurn) {
+    		for (State child : state.children) {
     			alpha = Math.max(alpha, evaluate(child, alpha, beta));
     			if (beta <= alpha) {
-    				node.grade = beta;
+    				state.grade = beta;
         			return beta;
         		}
     		}
-    		node.grade = alpha;
+    		state.grade = alpha;
     		return alpha;
     	} else {
-    		for (Node child : node.children) {
+    		for (State child : state.children) {
     			beta = Math.min(beta, evaluate(child, alpha, beta));
     			if (beta <= alpha) {
-    				node.grade = alpha;
+    				state.grade = alpha;
         			return alpha;
         		}
     		}
-    		node.grade = beta;
+    		state.grade = beta;
     		return beta;
     	}
     }
     
     public String toString() {
-    	return root.print("", true);
+    	return startState.print("", true);
     }
     
-    public class Node {
+    public class State {
+    	
         private Direction direction;
         private int clientId;
-        private Node parent;
+        private State parent;
         private boolean isMyTurn;
-        private List<Node> children = new ArrayList<Node>();
+        private List<State> children = new ArrayList<State>();
         
         public GridController gridController;
         public Double grade = null;
         
-        private Node(Direction direction) {
+        private State(Direction direction) {
         	this.direction = direction;
         }
         
@@ -125,23 +124,23 @@ public class MinimaxTree {
 						client.getPosition());
 				
 				for (Direction direction : validDirections) {
-					Node node = new Node(direction);
+					State state = new State(direction);
 					
-		        	node.parent = this;
-		        	node.clientId = clientId;
-		        	node.isMyTurn = ! isMyTurn;
-		        	node.gridController = gridController.clone();
+		        	state.parent = this;
+		        	state.clientId = clientId;
+		        	state.isMyTurn = ! isMyTurn;
+		        	state.gridController = gridController.clone();
 		        	
 		        	if (isMyTurn) {
-						client = node.gridController.getGrid().getClient(clientId);
+						client = state.gridController.getGrid().getClient(clientId);
 					} else {
-						client = node.gridController.getGrid().getEnemy(clientId);
+						client = state.gridController.getGrid().getEnemy(clientId);
 					}
 		        	client.trySetDirection(direction);
 		        	client.step();
-		        	node.gridController.evaluate();
+		        	state.gridController.evaluate();
 		        	
-		        	children.add(node);
+		        	children.add(state);
 				}
 			} catch (NotFound e) {
 				// nincs jó választás
@@ -188,8 +187,8 @@ public class MinimaxTree {
         }
         
         public void orderChildren() {
-        	Collections.sort(children, new CompareNodes(isMyTurn));
-        	for (Node child : children) {
+        	Collections.sort(children, new CompareStates(isMyTurn));
+        	for (State child : children) {
         		child.orderChildren();
         	}
         }
@@ -198,37 +197,37 @@ public class MinimaxTree {
         	return direction;
         }
         
-        public Node getParent() {
+        public State getParent() {
         	return parent;
         }
         
-        public List<Node> getChildren() {
+        public List<State> getChildren() {
         	return children;
         }
         
         private String print(String prefix, boolean isTail) {
-        	String node = prefix + (isTail ? "'--- " : "|--- ") + 
+        	String state = prefix + (isTail ? "'--- " : "|--- ") + 
             		(isMyTurn ? "Enemy " : "Client ") + "can go " + direction + "(" + grade + ")\n";
         	
             for (int i = 0; i < children.size() - 1; i++) {
-                node += children.get(i).print(prefix + (isTail ? "    " : "|   "), false);
+                state += children.get(i).print(prefix + (isTail ? "    " : "|   "), false);
             }
             if (children.size() > 0) {
-                node += children.get(children.size() - 1).print(
+                state += children.get(children.size() - 1).print(
                 		prefix + (isTail ? "    " : "|   "), true);
             }
             
-            return node;
+            return state;
         }
         
     }
     
-    private class CompareNodes implements Comparator<Node> {
+    private class CompareStates implements Comparator<State> {
     	
     	private short yes = -1;
     	private short no = 1;
     	
-    	public CompareNodes(boolean isMyTurn) {
+    	public CompareStates(boolean isMyTurn) {
 			if (! isMyTurn) {
 				yes = 1;
 				no = -1;
@@ -236,17 +235,17 @@ public class MinimaxTree {
 		}
     	
 		@Override
-		public int compare(Node node1, Node node2) {
-			if (node1.grade == null && node2.grade == null) {
+		public int compare(State state1, State state2) {
+			if (state1.grade == null && state2.grade == null) {
 				return 0;
 			}
-			if (node1.grade == null) {
+			if (state1.grade == null) {
 				return 1;
 			}
-			if (node2.grade == null) {
+			if (state2.grade == null) {
 				return -1;
 			}
-			return (node1.grade > node2.grade) ? yes : no;
+			return (state1.grade > state2.grade) ? yes : no;
 		}
     }
 }

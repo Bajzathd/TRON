@@ -5,7 +5,7 @@ import java.util.Iterator;
 import game.tron.grid.GridController;
 import game.tron.utility.Direction;
 import game.tron.utility.MinimaxTree;
-import game.tron.utility.MinimaxTree.Node;
+import game.tron.utility.MinimaxTree.State;
 
 public class MinimaxAIController extends AIController {
 	
@@ -22,11 +22,9 @@ public class MinimaxAIController extends AIController {
 		Direction bestDirection = client.getDirection();
 		
 		for (int round = 1; round <= depth; round++) {
-			handleNode(stepTree.getRoot(), round);
+			handleState(stepTree.getStartState(), round);
 			bestDirection = stepTree.getDirection();
 		}
-		
-		System.out.println(bestDirection);
 		
 		client.trySetDirection(bestDirection);
 		
@@ -35,29 +33,29 @@ public class MinimaxAIController extends AIController {
 	
 	/**
 	 * Adott állásból adott mélységig elkészíti a részfát
-	 * @param node állás
+	 * @param state állás
 	 * @param limit mélység
 	 */
-	private void handleNode(Node node, int limit) {
+	private void handleState(State state, int limit) {
 		if (limit <= 0) {
 			/* 
 			 * ha eléri a maximális mélységet akkor osztályozza
-			 * a pozíciót 
+			 * az állást
 			 */
-			node.grade();
+			state.grade();
 			return;
 		}
 		// gyerekeit legenerálja
-		node.setChildren();
+		state.setChildren();
 		
-		if (node.getChildren().isEmpty()) {
+		if (state.getChildren().isEmpty()) {
 			// ha nincsenek gyerekei akkor osztályoz (végállapothoz ért)
-			node.grade();
+			state.grade();
 		}
-		Iterator<Node> it = node.getChildren().iterator();
+		Iterator<State> it = state.getChildren().iterator();
 		while (it.hasNext()) {
-			// elkészíti a lehetséges pozíciók részfáit 1-el kisebb mélységgel
-			handleNode(it.next(), limit - 1);
+			// elkészíti a lehetséges állások részfáit 1-el kisebb mélységgel
+			handleState(it.next(), limit - 1);
 		}
 	}
 	
