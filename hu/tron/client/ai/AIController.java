@@ -23,11 +23,11 @@ public abstract class AIController extends ClientController {
 	public static AIController get(AI ai) {
 		int level = ai.getLevel();
 
-		if (level <= 1) {
+		if (level <= 0) {
 			return new RandomAIController(ai);
 		} else {
 			return new MinimaxAIController(ai);
 		}
 	}
-
+	
 }

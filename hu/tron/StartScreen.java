@@ -2,7 +2,9 @@ package hu.tron;
 
 import hu.tron.client.Client;
 import hu.tron.client.ai.AI;
+import hu.tron.client.ai.AIController;
 import hu.tron.client.player.Player;
+import hu.tron.client.player.PlayerController;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -221,8 +223,8 @@ public class StartScreen extends JFrame
 		/**
 		 * AI szintjét állító spinner
 		 */
-		private JSpinner aiLevel = new JSpinner(new SpinnerNumberModel(1, 1,
-				10, 1));
+		private JSpinner aiLevel = new JSpinner(new SpinnerNumberModel(
+				0, 0, 10, 2));
 
 		public ClientSettings(int id) {
 			this.id = id;
@@ -275,9 +277,9 @@ public class StartScreen extends JFrame
 		 */
 		public Client getClient() {
 			if (player.isSelected()) {
-				return new Player(id);
+				return PlayerController.getNewModel();
 			} else {
-				return new AI(id, (int) aiLevel.getValue());
+				return AIController.getNewModel((int) aiLevel.getValue());
 			}
 		}
 
