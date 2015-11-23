@@ -19,7 +19,8 @@ public class Player extends Client {
 		
 		clone.position = position;
 		clone.alive = alive;
-		clone.direction = direction;
+		clone.lastDirection = lastDirection;
+		clone.nextDirection = nextDirection;
 		
 		return clone;
 	}

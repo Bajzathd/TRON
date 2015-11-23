@@ -17,9 +17,13 @@ public abstract class Client {
 	 */
 	protected int id;
 	/**
-	 * Haladási irány
+	 * Utolsó lépés haladási iránya
 	 */
-	protected Direction direction;
+	protected Direction lastDirection;
+	/**
+	 * Következõ lépés haladási iránya
+	 */
+	protected Direction nextDirection;
 	/**
 	 * Életben van-e
 	 */
@@ -51,7 +55,8 @@ public abstract class Client {
 
 		position.x = x;
 		position.y = y;
-		direction = startDirection;
+		lastDirection = startDirection;
+		nextDirection = startDirection;
 	}
 
 	/**
@@ -66,7 +71,8 @@ public abstract class Client {
 		alive = true;
 
 		this.position = position;
-		direction = startDirection;
+		lastDirection = startDirection;
+		nextDirection = startDirection;
 	}
 
 	/**
@@ -76,10 +82,10 @@ public abstract class Client {
 	 *            irány
 	 */
 	public void trySetDirection(Direction direction) {
-		if (direction != null && !direction.isOpposite(this.direction)) {
+		if (direction != null && !direction.isOpposite(this.lastDirection)) {
 			
 			// Csak akkor állítjuk be az irányt ha nem üres és nem ellentétes
-			this.direction = direction;
+			this.nextDirection = direction;
 		}
 	}
 	
@@ -87,7 +93,8 @@ public abstract class Client {
 	 * Beállított irányba lépés
 	 */
 	public void step() {
-		position = direction.getTranslatedPoint(position);
+		position = nextDirection.getTranslatedPoint(position);
+		lastDirection = nextDirection;
 	}
 	
 	public void kill() {
@@ -99,7 +106,7 @@ public abstract class Client {
 	}
 
 	public Direction getDirection() {
-		return direction;
+		return nextDirection;
 	}
 
 	public int getId() {

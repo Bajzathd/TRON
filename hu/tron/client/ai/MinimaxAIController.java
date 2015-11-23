@@ -11,6 +11,10 @@ import hu.tron.utility.MinimaxTree;
 public class MinimaxAIController extends AIController {
 
 	/**
+	 * Játékfa
+	 */
+	private MinimaxTree stepTree;
+	/**
 	 * Játékfa maximális mélysége. Minél nagyobb annál jobb eredményt ad, de
 	 * annál több idõ kell a számításához.
 	 */
@@ -25,7 +29,7 @@ public class MinimaxAIController extends AIController {
 	public void step(Grid grid) {
 		long startTime = System.nanoTime();
 		
-		MinimaxTree stepTree = new MinimaxTree(grid, client.getId(), depth);
+		stepTree = new MinimaxTree(grid, client.getId(), depth);
 
 		client.trySetDirection(stepTree.getBestDirection());
 
