@@ -1,10 +1,11 @@
-package hu.tron.utility;
+package hu.tron;
 
 import java.awt.BorderLayout;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
+import javax.swing.SwingConstants;
 
 /**
  * Szimulált futtatások folyamatának megjelenítéséért felelõs osztály
@@ -20,7 +21,7 @@ public class SimulationView extends JFrame {
 	/**
 	 * Státusz jelzése a felhasználó felé
 	 */
-	private JLabel status = new JLabel("Processing...");
+	private JLabel status = new JLabel("Processing...", SwingConstants.CENTER);
 	/**
 	 * Befejezett szimulációk aránya az elindítottakhoz képest
 	 */
@@ -47,7 +48,7 @@ public class SimulationView extends JFrame {
 		add(status, BorderLayout.PAGE_START);
 		add(progressBar, BorderLayout.CENTER);
 		
-		pack();
+		setSize(300, 100);
 		
 		setFocusable(true);
 		setLocationRelativeTo(null);

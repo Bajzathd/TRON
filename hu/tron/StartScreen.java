@@ -1,9 +1,7 @@
 package hu.tron;
 
 import hu.tron.client.Client;
-import hu.tron.client.ai.AI;
 import hu.tron.client.ai.AIController;
-import hu.tron.client.player.Player;
 import hu.tron.client.player.PlayerController;
 
 import java.awt.BorderLayout;

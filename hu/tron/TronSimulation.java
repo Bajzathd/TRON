@@ -6,7 +6,6 @@ import java.util.List;
 import hu.tron.client.Client;
 import hu.tron.grid.GridController;
 import hu.tron.utility.Log;
-import hu.tron.utility.SimulationView;
 
 /**
  * Szimulációk futtatását végzõ osztály

@@ -12,6 +12,10 @@ import java.awt.Point;
 public abstract class ClientController {
 
 	/**
+	 * Új kliensnek kiosztandó id
+	 */
+	protected static int nextId = 1;
+	/**
 	 * Irányítandó kliens
 	 */
 	protected Client client;
