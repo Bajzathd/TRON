@@ -30,4 +30,8 @@ public abstract class AIController extends ClientController {
 		}
 	}
 	
+	public static AI getNewModel(int level) {
+		return new AI(ClientController.nextId++, level);
+	}
+	
 }

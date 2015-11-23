@@ -49,6 +49,10 @@ public class PlayerController extends ClientController implements KeyListener {
 	public Map<String, Direction> getControls() {
 		return controls;
 	}
+	
+	public static Player getNewModel() {
+		return new Player(ClientController.nextId++);
+	}
 
 	/**
 	 * Minden billentyû leütésnél meghívódik. Ha a leütött billentyûhöz lett
