@@ -284,9 +284,7 @@ public class MinimaxTree {
 			} else {
 				Client client = grid.getClient(aiId);
 				Client enemy = grid.getEnemy(aiId);
-
-				List<Point> clientAccessableFloors = grid
-						.getAccessableFloors(client);
+				List<Point> accessableFloors = grid.getAccessableFloors(client);
 
 				/*
 				 * ha az ellenfél pozíciójának valamelyik szomszédját eléri 
@@ -294,7 +292,7 @@ public class MinimaxTree {
 				 */
 				boolean isSeparated = true;
 				for (Direction d : Direction.values()) {
-					if (clientAccessableFloors.contains(d.getTranslatedPoint(
+					if (accessableFloors.contains(d.getTranslatedPoint(
 							enemy.getPosition()))) {
 						isSeparated = false;
 						break;
@@ -312,11 +310,11 @@ public class MinimaxTree {
 					 */
 					grade = (double) numFloors / distance;
 				} else {
-					int difference = clientAccessableFloors.size() - 
-							(numFloors - clientAccessableFloors.size());
+					int difference = accessableFloors.size() - 
+							(numFloors - accessableFloors.size());
 
 					// mennyivel ér el több mezőt mint az ellenfél
-					grade = (double) difference;
+					grade = (numFloors / 2.0) + difference;
 				}
 			}
 		}
