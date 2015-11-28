@@ -27,12 +27,10 @@ public class RandomAIController extends AIController {
 		try {
 			List<Direction> validDirections = grid.getValidDirections(
 					client.getPosition());
+			Random rnd = new Random();
 			
-			if (!validDirections.isEmpty()) {
-				Random rnd = new Random();
-				client.trySetDirection(validDirections.get(
-						rnd.nextInt(validDirections.size())));
-			}
+			client.trySetDirection(validDirections.get(
+					rnd.nextInt(validDirections.size())));
 		} catch (NotFound ex) {} // nincs jó döntés, marad az elõzõ irány
 		
 		super.step(grid);

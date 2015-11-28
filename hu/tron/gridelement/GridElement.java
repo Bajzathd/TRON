@@ -12,11 +12,10 @@ public abstract class GridElement {
 	/**
 	 * Elem pozíciója a játéktéren
 	 */
-	protected Point position = new Point();
+	protected Point position;
 	
 	public GridElement(int x, int y) {
-		position.x = x;
-		position.y = y;
+		position = new Point(x, y);
 	}
 	
 	public GridElement(Point position) {
@@ -34,4 +33,7 @@ public abstract class GridElement {
 	public int getY() {
 		return position.y;
 	}
+	
+	@Override
+	public abstract String toString();
 }

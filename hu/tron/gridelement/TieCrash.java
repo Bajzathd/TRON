@@ -17,5 +17,10 @@ public class TieCrash extends GridElement {
 	public TieCrash(Point position) {
 		super(position);
 	}
+	
+	@Override
+	public String toString() {
+		return "x";
+	}
 
 }

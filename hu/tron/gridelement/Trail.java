@@ -34,6 +34,7 @@ public class Trail extends GridElement {
 		return client;
 	}
 	
+	@Override
 	public String toString() {
 		return Integer.toString(client.getId());
 	}

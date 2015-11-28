@@ -65,8 +65,6 @@ public class GridCreator {
 	 * @return konstruktorban megadott feltételeknek megfelelõ {@link Grid}
 	 */
 	public Grid getGrid() {
-		int x;
-		int y;
 		Obstacle newObstacle;
 		List<Obstacle> obstacles = new ArrayList<Obstacle>();
 		GridElement[][] elements = new GridElement[height + 2][width + 2];
@@ -75,13 +73,8 @@ public class GridCreator {
 			generateGrid();
 		} while (!isValidGrid());
 
-		for (x = 0; x < width + 2; x++) {
-			for (y = 0; y < height + 2; y++) {
-				elements[y][x] = null;
-			}
-		}
-		for (x = 0; x < width; x++) {
-			for (y = 0; y < height; y++) {
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
 				if (grid[y][x] != 0) {
 					newObstacle = new Obstacle(x + 1, y + 1, grid[y][x]);
 
@@ -110,7 +103,6 @@ public class GridCreator {
 	 * Visszaállítja alapértékekre
 	 */
 	private void reset() {
-		// minden mezõt játszhatóra állítunk
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				grid[y][x] = 0;
@@ -128,12 +120,12 @@ public class GridCreator {
 	 * @param d magasság amire emeljük
 	 */
 	private void raiseCell(Point p, int d) {
+		
+		/*
+		 * ha kilóg a pont az akadállyokkal nehezíthetõ részrõl vagy már
+		 * magasabb mint amire emelnénk, akkor megszakítjuk
+		 */
 		if (!obstaclesBound.contains(p) || grid[p.y][p.x] >= d) {
-			
-			/*
-			 * ha kilóg a pont az akadállyokkal nehezíthetõ részrõl vagy már
-			 * magasabb mint amire emelnénk akkor megszakítjuk
-			 */
 			return;
 		}
 
@@ -169,10 +161,9 @@ public class GridCreator {
 			visitPoint(getFirstFloor());
 
 			// minden nem akadály pont be lett-e járva
-			return visitedPoints.size() == (width * height - numObstacles);
+			return visitedPoints.size() == ((width * height) - numObstacles);
 		} catch (NotFound ex) {
-			// nincs üres pont
-			return false;
+			return false; // nincs üres pont
 		}
 	}
 
@@ -218,6 +209,6 @@ public class GridCreator {
 	 * @return megfelel-e a pálya az akadály aránynak
 	 */
 	private boolean isUnderLimit() {
-		return ((double) numObstacles / (width * height)) <= obstacleRatio;
+		return ((double) numObstacles / (width * height)) < obstacleRatio;
 	}
 }

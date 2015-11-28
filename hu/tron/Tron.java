@@ -32,7 +32,7 @@ public class Tron implements Runnable {
 	 * @param client1
 	 *            elsõ kliens
 	 * @param client2
-	 *            másidik kliens
+	 *            második kliens
 	 */
 	public Tron(int width, int height, double obstacleRatio, Client client1,
 			Client client2) {
@@ -57,26 +57,24 @@ public class Tron implements Runnable {
 				lastTime = System.nanoTime();
 	
 				engine.update();
-	
 				engine.render();
 	
 				delta = System.nanoTime() - lastTime;
+				
+				/*
+				 * framerate maximalizálása érdekében szüneteltetjük a szál
+				 * futását ha szükséges
+				 */
 				if (delta < FRAME_LENGTH) {
-	
-					/*
-					 * framerate maximalizálása érdekében szüneteltetjük a szál
-					 * futását ha szükséges
-					 */
 					try {
 						Thread.sleep((FRAME_LENGTH - delta) / 1000000L);
-					} catch (InterruptedException ex) {
-					}
+					} catch (InterruptedException ex) {}
 				}
 			}
-	
 			engine.showResults();
 		} catch (Exception ex) {
 			ex.printStackTrace();
+			System.exit(1);
 		}
 	}
 

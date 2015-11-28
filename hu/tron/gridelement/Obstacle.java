@@ -28,6 +28,7 @@ public class Obstacle extends GridElement {
 		return this.height;
 	}
 	
+	@Override
 	public String toString() {
 		return "#";
 	}

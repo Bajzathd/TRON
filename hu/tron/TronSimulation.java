@@ -93,7 +93,7 @@ public class TronSimulation implements Runnable {
 	private void initSimulations() {
 		for (int round = 1; round <= rounds; round++) {
 			Thread simulation = new Thread(new SimulationRound(client1.clone(),
-					client2.clone(), log));
+					client2.clone()));
 
 			simulation.start();
 			simulations.add(simulation);
@@ -105,9 +105,7 @@ public class TronSimulation implements Runnable {
 		for (Thread simulation : simulations) {
 			try {
 				simulation.join();
-			} catch (Exception e) {
-				// interrupted
-			}
+			} catch (Exception e) {}
 		} // minden játék lefutott
 
 		log.writeToFile();
@@ -125,10 +123,6 @@ public class TronSimulation implements Runnable {
 		 * Játék motorja
 		 */
 		private GridController engine;
-		/**
-		 * Logoló
-		 */
-		private Log log;
 
 		/**
 		 * Kör inicializálása
@@ -140,26 +134,20 @@ public class TronSimulation implements Runnable {
 		 * @param log
 		 *            logoló
 		 */
-		public SimulationRound(Client client1, Client client2, Log log) {
-			
+		public SimulationRound(Client client1, Client client2) {
 			engine = new GridController(width, height, obstacleRatio);
 			engine.getGrid().setClient1(client1);
 			engine.getGrid().setClient2(client2);
-
-			this.log = log;
 		}
 
 		@Override
 		public void run() {
 			try {
 				engine.start();
-	
 				while (!engine.isOver()) {
 					engine.update();
 				}
-	
 				view.progress();
-				
 				log.addResult(engine.getGrid());
 			} catch (Exception ex) {
 				ex.printStackTrace();
