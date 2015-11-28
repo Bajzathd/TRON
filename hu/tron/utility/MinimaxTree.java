@@ -308,7 +308,7 @@ public class MinimaxTree {
 					 * mér, légvonalban milyen távol vannak egymástól a
 					 * kliensek)
 					 */
-					grade = (double) numFloors / distance;
+					grade = (numFloors / 2.0) / distance;
 				} else {
 					int difference = accessableFloors.size() - 
 							(numFloors - accessableFloors.size());
