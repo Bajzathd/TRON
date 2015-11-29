@@ -23,7 +23,8 @@ public class SwingRenderer extends JFrame implements Renderer {
 	/**
 	 * Kliensek színei
 	 */
-	private static Color[] colors = { new Color(0x11a1ee), new Color(0xf79b08) };
+	private static final Color[] COLORS = 
+		{ new Color(0x11a1ee), new Color(0xf79b08) };
 
 	/**
 	 * Játéktér megjelenítése
@@ -74,7 +75,7 @@ public class SwingRenderer extends JFrame implements Renderer {
 	 * @return kliens színe
 	 */
 	public static Color getColor(int clientId) {
-		return colors[clientId - 1];
+		return COLORS[clientId - 1];
 	}
 
 }

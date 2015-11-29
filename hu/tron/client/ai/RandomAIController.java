@@ -18,6 +18,11 @@ public class RandomAIController extends AIController {
 	 * Az AI-val szomszédos padlók közül egy véletlenszerûen választottra lép
 	 */
 	
+	/**
+	 * Random generátor, irány választásához használja
+	 */
+	private Random random = new Random();
+	
 	public RandomAIController(AI ai) {
 		super(ai);
 	}
@@ -27,10 +32,9 @@ public class RandomAIController extends AIController {
 		try {
 			List<Direction> validDirections = grid.getValidDirections(
 					client.getPosition());
-			Random rnd = new Random();
 			
 			client.trySetDirection(validDirections.get(
-					rnd.nextInt(validDirections.size())));
+					random.nextInt(validDirections.size())));
 		} catch (NotFound ex) {} // nincs jó döntés, marad az elõzõ irány
 		
 		super.step(grid);

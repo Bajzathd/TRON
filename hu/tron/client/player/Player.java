@@ -25,6 +25,7 @@ public class Player extends Client {
 		return clone;
 	}
 	
+	@Override
 	public String toString() {
 		return "Player#"+id;
 	}

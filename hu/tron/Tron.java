@@ -53,7 +53,7 @@ public class Tron implements Runnable {
 		try {
 			engine.start();
 	
-			while (!engine.isOver()) { // játék ciklus
+			do { // játék ciklus
 				lastTime = System.nanoTime();
 	
 				engine.update();
@@ -70,7 +70,8 @@ public class Tron implements Runnable {
 						Thread.sleep((FRAME_LENGTH - delta) / 1000000L);
 					} catch (InterruptedException ex) {}
 				}
-			}
+			} while (!engine.isOver());
+			
 			engine.showResults();
 		} catch (Exception ex) {
 			ex.printStackTrace();

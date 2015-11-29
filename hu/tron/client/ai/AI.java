@@ -36,6 +36,7 @@ public class AI extends Client {
 		return level;
 	}
 
+	@Override
 	public String toString() {
 		return "AI (level" + level + ")";
 	}

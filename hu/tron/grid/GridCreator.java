@@ -117,15 +117,15 @@ public class GridCreator {
 	 * hogy egy elem minden szomszédja maximum 1-el alacsonyabb.
 	 * 
 	 * @param p pont amit megemel
-	 * @param d magasság amire emeljük
+	 * @param h magasság amire emeljük
 	 */
-	private void raiseCell(Point p, int d) {
+	private void raiseCell(Point p, int h) {
 		
 		/*
 		 * ha kilóg a pont az akadállyokkal nehezíthetõ részrõl vagy már
 		 * magasabb mint amire emelnénk, akkor megszakítjuk
 		 */
-		if (!obstaclesBound.contains(p) || grid[p.y][p.x] >= d) {
+		if (!obstaclesBound.contains(p) || grid[p.y][p.x] >= h) {
 			return;
 		}
 

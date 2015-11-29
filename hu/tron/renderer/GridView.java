@@ -56,10 +56,10 @@ public class GridView extends JPanel {
 
 	@Override
 	public void paint(Graphics g) {
-		super.paint(g);
-
 		int x;
 		int y;
+		
+		super.paint(g);
 
 		// háttér rács
 		g.setColor(Color.DARK_GRAY);
@@ -74,9 +74,9 @@ public class GridView extends JPanel {
 
 		// akadályok
 		for (Obstacle obstacle : grid.getObstacles()) {
+			int height = obstacle.getHeight() + 1;
 			x = obstacle.getX() * elementSize;
 			y = obstacle.getY() * elementSize;
-			int height = obstacle.getHeight() + 1;
 
 			g.setColor(new Color(255 / height, 255 / height, 255 / height));
 			g.fillRect(x, y, elementSize, elementSize);
@@ -84,11 +84,10 @@ public class GridView extends JPanel {
 
 		// kliens csíkok
 		for (Trail trail : grid.getTrails()) {
-			x = trail.getX() * elementSize;
-			y = trail.getY() * elementSize;
-
 			Color trailColor = SwingRenderer
 					.getColor(trail.getClient().getId());
+			x = trail.getX() * elementSize;
+			y = trail.getY() * elementSize;
 
 			if (trail.isHead) {
 				g.setColor(trailColor.brighter());
@@ -102,12 +101,12 @@ public class GridView extends JPanel {
 		// döntetlen
 		TieCrash tieCrash = grid.getTieCrash();
 		if (tieCrash != null) {
-			x = tieCrash.getX() * elementSize;
-			y = tieCrash.getY() * elementSize;
-
 			int ceil = (int) Math.ceil(elementSize / 2.0);
 			int floor = (int) Math.floor(elementSize / 2.0);
 
+			x = tieCrash.getX() * elementSize;
+			y = tieCrash.getY() * elementSize;
+			
 			g.setColor(SwingRenderer.getColor(1).brighter());
 			g.fillRect(x, y, elementSize, elementSize);
 

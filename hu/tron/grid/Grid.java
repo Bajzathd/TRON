@@ -70,9 +70,10 @@ public class Grid {
 	public Grid(GridElement[][] elements, List<Obstacle> obstacles) {
 		this.elements = elements;
 		this.obstacles = obstacles;
-		numFloors = (elements[0].length * elements.length) - obstacles.size();
-
+		
 		gridRectangle = new Rectangle(elements[0].length, elements.length);
+		numFloors = (gridRectangle.width * gridRectangle.height) - 
+				obstacles.size();
 	}
 
 	@Override
@@ -97,7 +98,7 @@ public class Grid {
 
 		clone.aliveClients = new ArrayList<Client>();
 		for (Client aliveClient : aliveClients) {
-			clone.aliveClients.add(aliveClient);
+			clone.aliveClients.add(aliveClient.clone());
 		}
 
 		clone.trails = new ArrayList<Trail>(trails);
@@ -190,8 +191,9 @@ public class Grid {
 	 * @return elem
 	 */
 	public GridElement getElement(Point p) {
-		return (gridRectangle.contains(p)) ? elements[p.y][p.x] : new Obstacle(
-				p, 1);
+		return (gridRectangle.contains(p)) 
+				? elements[p.y][p.x] 
+				: new Obstacle(p, 1);
 	}
 
 	/**
@@ -235,6 +237,7 @@ public class Grid {
 
 	public void setTieCrash(Point position) {
 		tieCrash = new TieCrash(position);
+		elements[position.y][position.x] = tieCrash;
 	}
 
 	public void setClient1(Client client) {
