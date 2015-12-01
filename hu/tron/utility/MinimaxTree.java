@@ -98,7 +98,7 @@ public class MinimaxTree {
 		double bestGrade = -Double.MAX_VALUE; // ismert legmagasabb értékelés
 
 		evaluate(startState, -Double.MAX_VALUE, Double.MAX_VALUE);
-		startState.orderChildren();
+//		startState.orderChildren();
 
 		for (State child : startState.children) {
 			if (child.grade != null && child.grade > bestGrade) {
@@ -279,12 +279,13 @@ public class MinimaxTree {
 			} else if (numAliveClients == 1) {
 				Client winner = grid.getAliveClients().get(0);
 
-				grade = (winner.getId() == aiId) ? (double) numFloors // WIN
+				grade = (winner.getId() == aiId) 
+						? (double) numFloors // WIN
 						: (double) -numFloors; // LOSE
 			} else {
 				Client client = grid.getClient(aiId);
 				Client enemy = grid.getEnemy(aiId);
-				List<Point> accessableFloors = grid.getAccessableFloors(client);
+				List<Point> accessibleFloors = grid.getAccessibleFloors(client);
 
 				/*
 				 * ha az ellenfél pozíciójának valamelyik szomszédját eléri 
@@ -292,7 +293,7 @@ public class MinimaxTree {
 				 */
 				boolean isSeparated = true;
 				for (Direction d : Direction.values()) {
-					if (accessableFloors.contains(d.getTranslatedPoint(
+					if (accessibleFloors.contains(d.getTranslatedPoint(
 							enemy.getPosition()))) {
 						isSeparated = false;
 						break;
@@ -310,10 +311,10 @@ public class MinimaxTree {
 					 */
 					grade = (numFloors / 2.0) / distance;
 				} else {
-					int difference = accessableFloors.size() - 
-							(numFloors - accessableFloors.size());
+					int difference = accessibleFloors.size() - 
+							(numFloors - accessibleFloors.size());
 
-					// mennyivel ér el több mezőt mint az ellenfél
+					// minnél több padlót ér el
 					grade = (numFloors / 2.0) + difference;
 				}
 			}

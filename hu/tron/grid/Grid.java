@@ -203,7 +203,7 @@ public class Grid {
 	 *            kliens
 	 * @return elérhetõ pontok
 	 */
-	public List<Point> getAccessableFloors(Client client) {
+	public List<Point> getAccessibleFloors(Client client) {
 		List<Point> visitedPoints = new ArrayList<Point>();
 
 		for (Direction direction : Direction.values()) {
