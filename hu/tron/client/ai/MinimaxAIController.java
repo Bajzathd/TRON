@@ -27,17 +27,11 @@ public class MinimaxAIController extends AIController {
 
 	@Override
 	public void step(Grid grid) {
-		long startTime = System.nanoTime();
-		
 		stepTree = new MinimaxTree(grid, client.getId(), depth);
 
 		client.trySetDirection(stepTree.getBestDirection());
 
 		super.step(grid);
-		
-		System.out.println("It took " + 
-				((System.nanoTime() - startTime) / 1000000) + " ms for " +
-				client + " to step.");
 	}
 
 }

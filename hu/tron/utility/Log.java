@@ -35,10 +35,19 @@ public class Log {
 	 * 2: második kliens nyert köreinek száma
 	 */
 	private int[] results = new int[3];
-
+	
+	private long[] stepTimes = {0, 0};
+	private int[] steps = {0, 0};
+	
 	public Log(Client client1, Client client2) {
 		this.client1 = client1;
 		this.client2 = client2;
+	}
+	
+	public void addStepTime(Client client, long stepTime) {
+		int index = client.getId() - 1;
+		stepTimes[index] += stepTime;
+		steps[index]++;
 	}
 
 	/**
@@ -67,12 +76,22 @@ public class Log {
 
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(
-					new FileOutputStream("log/" + timeStamp + ".log"), "utf-8"));
+					new FileOutputStream("log/" + timeStamp + ".log"), 
+					"utf-8"));
 
 			writer.write("Ties: " + results[0] + "\n");
 			writer.write(client1 + " won " + results[1] + " times\n");
-			writer.write(client2 + " won " + results[2] + " times");
-
+			writer.write(client2 + " won " + results[2] + " times\n");
+			
+			writer.write("\nAverage step times:\n");
+			writer.write(client1 + ": " + (stepTimes[0] / steps[0] / 1000000) 
+					+ " ms\n");
+			writer.write(client2 + ": " + (stepTimes[1] / steps[1] / 1000000) 
+					+ " ms\n");
+			
+			int avgSteps = steps[0] / (results[0] + results[1] + results[2]);
+			writer.write("\nAverage number of steps per round: " + avgSteps);
+			
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		} finally {

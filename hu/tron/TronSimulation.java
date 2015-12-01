@@ -1,9 +1,9 @@
 package hu.tron;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import hu.tron.client.Client;
+import hu.tron.client.ai.AI;
+import hu.tron.client.ai.AIController;
+import hu.tron.grid.Grid;
 import hu.tron.grid.GridController;
 import hu.tron.utility.Log;
 
@@ -46,10 +46,6 @@ public class TronSimulation implements Runnable {
 	 * Logkészítõ
 	 */
 	private Log log;
-	/**
-	 * Szimulációk szálait tároló lista
-	 */
-	private List<Thread> simulations = new ArrayList<Thread>();
 
 	/**
 	 * Szimuláció inicializálását és elindítását végzõ konstruktor
@@ -79,35 +75,16 @@ public class TronSimulation implements Runnable {
 		this.client2 = client2;
 
 		view = new SimulationView(rounds);
-
 		log = new Log(client1, client2);
-
-		initSimulations();
 
 		new Thread(this).start();
 	}
 
-	/**
-	 * Szimulációk listához adását és elindítását végzi
-	 */
-	private void initSimulations() {
-		for (int round = 1; round <= rounds; round++) {
-			Thread simulation = new Thread(new SimulationRound(client1.clone(),
-					client2.clone()));
-
-			simulation.start();
-			simulations.add(simulation);
-		}
-	}
-
 	@Override
 	public void run() {
-		for (Thread simulation : simulations) {
-			try {
-				simulation.join();
-			} catch (Exception e) {}
-		} // minden játék lefutott
-
+		for (int round = 1; round <= rounds; round++) {
+			new SimulationRound(client1.clone(), client2.clone());
+		}
 		log.writeToFile();
 		view.done();
 	}
@@ -117,7 +94,7 @@ public class TronSimulation implements Runnable {
 	 * 
 	 * @author Dávid Bajzáth
 	 */
-	private class SimulationRound implements Runnable {
+	private class SimulationRound {
 
 		/**
 		 * Játék motorja
@@ -138,15 +115,22 @@ public class TronSimulation implements Runnable {
 			engine = new GridController(width, height, obstacleRatio);
 			engine.getGrid().setClient1(client1);
 			engine.getGrid().setClient2(client2);
+			
+			run();
 		}
 
-		@Override
-		public void run() {
+		private void run() {
 			try {
 				engine.start();
-				while (!engine.isOver()) {
-					engine.update();
-				}
+				do {
+					Grid grid = engine.getGrid();
+					for (Client client : grid.getAliveClients()) {
+						long startTime = System.nanoTime();
+						AIController.get((AI) client).step(grid);
+						log.addStepTime(client, System.nanoTime() - startTime);
+					}
+					engine.evaluate();
+				} while (!engine.isOver());
 				view.progress();
 				log.addResult(engine.getGrid());
 			} catch (Exception ex) {
