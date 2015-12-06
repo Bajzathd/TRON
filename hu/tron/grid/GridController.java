@@ -5,6 +5,7 @@ import hu.tron.client.ai.AI;
 import hu.tron.client.ai.AIController;
 import hu.tron.client.player.Player;
 import hu.tron.client.player.PlayerController;
+import hu.tron.utility.Log;
 
 /**
  * Játéktér irányítását végzõ osztály
@@ -13,6 +14,9 @@ import hu.tron.client.player.PlayerController;
  */
 public class GridController {
 
+	/**
+	 * Irányítandó játéktér
+	 */
 	protected Grid grid;
 
 	public GridController(Grid grid) {
@@ -23,20 +27,33 @@ public class GridController {
 		this.grid = new GridCreator(width, height, obstacleRatio).getGrid();
 	}
 
-	public GridController clone() {
-		return new GridController(grid.clone());
-	}
-
 	/**
 	 * Firssíti a játékteret: minden klienst léptet, majd kiértékeli a lépéseket
 	 */
 	public void update() {
+		Grid gridClone = grid.clone();
 		for (Client client : grid.getAliveClients()) {
 			if (client instanceof Player) {
-				new PlayerController((Player) client).step(grid);
+				new PlayerController((Player) client).step(gridClone);
 			} else {
-				AIController.get((AI) client).step(grid);
+				AIController.get((AI) client).step(gridClone);
 			}
+		}
+		evaluate();
+	}
+	
+	/**
+	 * Firssíti a játékteret: minden klienst léptet, majd kiértékeli a lépéseket
+	 * és elmenti a statisztikákat a naplóba
+	 * 
+	 * @param log Naplózásra használt objektum
+	 */
+	public void update(Log log) {
+		Grid gridClone = grid.clone();
+		for (Client client : grid.getAliveClients()) {
+			long startTime = System.nanoTime();
+			AIController.get((AI) client).step(gridClone);
+			log.addStepTime(client, System.nanoTime() - startTime);
 		}
 		evaluate();
 	}
@@ -49,13 +66,11 @@ public class GridController {
 	public void evaluate() {
 		Client client1 = grid.getClient1();
 		Client client2 = grid.getClient2();
-
+		
 		if (client1.getPosition().equals(client2.getPosition())) {
-			client1.kill();
-			client2.kill();
-
-			grid.getAliveClients().clear();
 			grid.setTieCrash(client1.getPosition());
+			grid.killClient(client1);
+			grid.killClient(client2);
 		} else {
 			handleClient(client1);
 			handleClient(client2);

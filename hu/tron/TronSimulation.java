@@ -70,7 +70,7 @@ public class TronSimulation implements Runnable {
 		this.height = height;
 		this.obstacleRatio = obstacleRatio;
 		this.rounds = rounds;
-
+		
 		this.client1 = client1;
 		this.client2 = client2;
 
@@ -123,13 +123,7 @@ public class TronSimulation implements Runnable {
 			try {
 				engine.start();
 				do {
-					Grid grid = engine.getGrid();
-					for (Client client : grid.getAliveClients()) {
-						long startTime = System.nanoTime();
-						AIController.get((AI) client).step(grid);
-						log.addStepTime(client, System.nanoTime() - startTime);
-					}
-					engine.evaluate();
+					engine.update(log);
 				} while (!engine.isOver());
 				view.progress();
 				log.addResult(engine.getGrid());

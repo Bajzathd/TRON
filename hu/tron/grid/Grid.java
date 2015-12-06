@@ -97,8 +97,11 @@ public class Grid {
 		clone.client2 = client2.clone();
 
 		clone.aliveClients = new ArrayList<Client>();
-		for (Client aliveClient : aliveClients) {
-			clone.aliveClients.add(aliveClient.clone());
+		if (client1.isAlive()) {
+			clone.aliveClients.add(clone.client1);
+		}
+		if (client2.isAlive()) {
+			clone.aliveClients.add(clone.client2);
 		}
 
 		clone.trails = new ArrayList<Trail>(trails);
@@ -109,7 +112,8 @@ public class Grid {
 	/**
 	 * Új játék indítása
 	 * 
-	 * @throws Exception nem lett beállítva minden kliens
+	 * @throws Exception
+	 *             nem lett beállítva minden kliens
 	 */
 	public void start() throws Exception {
 		if (client1 == null || client2 == null) {
@@ -166,7 +170,7 @@ public class Grid {
 	 * @throws NotFound
 	 *             nincs padló szomszédja a pontnak
 	 */
-	public List<Direction> getValidDirections(Point p) throws NotFound {
+	public List<Direction> getValidDirections(final Point p) throws NotFound {
 		List<Direction> validDirections = new ArrayList<Direction>();
 
 		for (Direction direction : Direction.values()) {
@@ -190,7 +194,7 @@ public class Grid {
 	 *            pont
 	 * @return elem
 	 */
-	public GridElement getElement(Point p) {
+	public GridElement getElement(final Point p) {
 		return (gridRectangle.contains(p)) 
 				? elements[p.y][p.x] 
 				: new Obstacle(p, 1);
@@ -222,7 +226,7 @@ public class Grid {
 	 * @param visitedPoints
 	 *            bejárt pontok
 	 */
-	private void visitPoint(Point p, List<Point> visitedPoints) {
+	private void visitPoint(final Point p, List<Point> visitedPoints) {
 		if (!gridRectangle.contains(p) || !isFloor(p)
 				|| visitedPoints.contains(p)) {
 			return;
@@ -235,8 +239,8 @@ public class Grid {
 		}
 	}
 
-	public void setTieCrash(Point position) {
-		tieCrash = new TieCrash(position);
+	public void setTieCrash(final Point position) {
+		tieCrash = new TieCrash((Point) position.clone());
 		elements[position.y][position.x] = tieCrash;
 	}
 
@@ -315,6 +319,9 @@ public class Grid {
 			}
 			grid += "\n";
 		}
+		
+		grid += client1 + " " + client1.getPosition() + "\n";
+		grid += client2 + " " + client2.getPosition() + "\n";
 
 		return grid;
 	}

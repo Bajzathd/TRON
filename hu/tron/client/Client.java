@@ -82,10 +82,10 @@ public abstract class Client {
 	 *            irány
 	 */
 	public void trySetDirection(Direction direction) {
-		if (direction != null && !direction.isOpposite(this.lastDirection)) {
+		if (direction != null && !direction.isOpposite(lastDirection)) {
 			
 			// Csak akkor állítjuk be az irányt ha nem üres és nem ellentétes
-			this.nextDirection = direction;
+			nextDirection = direction;
 		}
 	}
 	
@@ -126,7 +126,10 @@ public abstract class Client {
 	}
 
 	public Trail getTrail() {
-		return new Trail((Point) position.clone(), clone());
+		return new Trail(position, clone());
 	}
+	
+	@Override
+	public abstract String toString();
 
 }

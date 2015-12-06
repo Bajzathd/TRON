@@ -19,7 +19,7 @@ public abstract class GridElement {
 	}
 	
 	public GridElement(Point position) {
-		this.position = position;
+		this.position = (Point) position.clone();
 	}
 	
 	public Point getPosition() {

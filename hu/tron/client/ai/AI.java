@@ -9,20 +9,13 @@ import hu.tron.client.Client;
  */
 public class AI extends Client {
 
-	/**
-	 * AI szintje (minnél magasabb annál jobban játszik, de annál tovább tart
-	 * lépnie)
-	 */
-	private int level;
-
-	public AI(int id, int level) {
+	public AI(int id) {
 		super(id);
-		this.level = level;
 	}
 
 	@Override
 	public AI clone() {
-		AI clone = new AI(id, level);
+		AI clone = new AI(id);
 
 		clone.position = position;
 		clone.alive = alive;
@@ -31,14 +24,10 @@ public class AI extends Client {
 
 		return clone;
 	}
-
-	public int getLevel() {
-		return level;
-	}
-
+	
 	@Override
 	public String toString() {
-		return "AI (level" + level + ")";
+		return "AI#"+id;
 	}
 
 }

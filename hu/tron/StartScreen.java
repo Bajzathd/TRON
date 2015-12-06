@@ -3,17 +3,24 @@ package hu.tron;
 import hu.tron.client.Client;
 import hu.tron.client.ai.AIController;
 import hu.tron.client.player.PlayerController;
+import hu.tron.heuristic.Heuristic;
 
 import java.awt.BorderLayout;
+import java.awt.Button;
 import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -104,7 +111,7 @@ public class StartScreen extends JFrame
 	private void startGame() {
 		Client client1 = this.client1.getClient();
 		Client client2 = this.client2.getClient();
-
+		
 		if (isSimulation.isSelected()) {
 			new TronSimulation(WIDTH, HEIGHT, OBSTACLE_RATIO, client1, client2,
 					roundsPanel.getNumRounds());
@@ -215,15 +222,24 @@ public class StartScreen extends JFrame
 		 */
 		private JRadioButton player = new JRadioButton("Player");
 		/**
-		 * AI-e a kliens típusa
+		 * Random AI-e a kliens típusa
 		 */
-		private JRadioButton ai = new JRadioButton("AI");
+		private JRadioButton ai = new JRadioButton("Random AI");
+		/**
+		 * Minimax AI-e a kliens típusa
+		 */
+		private JRadioButton minimaxAI = new JRadioButton("Minimax AI");
+		/**
+		 * Minimax AI-hoz használt heurisztika típusa
+		 */
+		private JComboBox<Heuristic.type> heuristic = 
+				new JComboBox<Heuristic.type>(Heuristic.type.values());
 		/**
 		 * AI szintjét állító spinner
 		 */
 		private JSpinner aiLevel = new JSpinner(new SpinnerNumberModel(
-				0, 0, 10, 2));
-
+				2, 2, 10, 2));
+		
 		public ClientSettings(int id) {
 			this.id = id;
 			initUI();
@@ -233,24 +249,41 @@ public class StartScreen extends JFrame
 		 * Kezelõ felületet inicializálja
 		 */
 		private void initUI() {
-			setLayout(new BorderLayout(5, 5));
-			add(new JLabel("Client#" + id + " settings", SwingConstants.CENTER),
-					BorderLayout.PAGE_START);
+			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+			setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+			
+			add(new JLabel("Client#" + id + " settings", 
+					SwingConstants.CENTER));
 
-			player.setSelected(true);
 			player.addActionListener(this);
+			player.setAlignmentX(Component.LEFT_ALIGNMENT);
 
 			ai.addActionListener(this);
+			ai.setAlignmentX(Component.LEFT_ALIGNMENT);
 
 			aiLevel.setEnabled(false);
+			aiLevel.setAlignmentX(Component.LEFT_ALIGNMENT);
+			
+			minimaxAI.addActionListener(this);
+			minimaxAI.setAlignmentX(Component.LEFT_ALIGNMENT);
 
 			ButtonGroup group = new ButtonGroup();
 			group.add(player);
 			group.add(ai);
-
-			add(player, BorderLayout.WEST);
-			add(ai, BorderLayout.CENTER);
-			add(aiLevel, BorderLayout.EAST);
+			group.add(minimaxAI);
+			
+			add(player);
+			add(ai);
+			add(minimaxAI);
+			
+			JPanel minimaxAIPanel = new JPanel();
+			minimaxAIPanel.add(heuristic);
+			minimaxAIPanel.add(aiLevel);
+			minimaxAIPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+			
+			add(minimaxAIPanel);
+			
+			player.doClick();
 		}
 
 		/**
@@ -261,8 +294,7 @@ public class StartScreen extends JFrame
 		public void setSimulation(boolean isSimulation) {
 			if (isSimulation) {
 				player.setEnabled(false);
-				ai.setSelected(true);
-				aiLevel.setEnabled(true);
+				ai.doClick();
 			} else {
 				player.setEnabled(true);
 			}
@@ -276,17 +308,23 @@ public class StartScreen extends JFrame
 		public Client getClient() {
 			if (player.isSelected()) {
 				return PlayerController.getNewModel();
+			} else if (ai.isSelected()) {
+				return AIController.getNewModel();
 			} else {
-				return AIController.getNewModel((int) aiLevel.getValue());
+				return AIController.getNewModel(
+						(Heuristic.type) heuristic.getSelectedItem(), 
+						(int) aiLevel.getValue());
 			}
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (player.isSelected()) {
-				aiLevel.setEnabled(false);
-			} else {
+			if (minimaxAI.isSelected()) {
 				aiLevel.setEnabled(true);
+				heuristic.setEnabled(true);
+			} else {
+				aiLevel.setEnabled(false);
+				heuristic.setEnabled(false);
 			}
 		}
 

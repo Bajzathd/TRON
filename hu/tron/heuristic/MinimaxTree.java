@@ -1,4 +1,4 @@
-package hu.tron.utility;
+package hu.tron.heuristic;
 
 import java.awt.Point;
 import java.util.ArrayList;
@@ -10,8 +10,10 @@ import java.util.List;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 
 import hu.tron.client.Client;
+import hu.tron.client.ai.MinimaxAI;
 import hu.tron.grid.Grid;
 import hu.tron.grid.GridController;
+import hu.tron.utility.Direction;
 
 /**
  * Minimax játék fát reprezentáló osztály {@link State} típusú csúcsokkal
@@ -27,6 +29,10 @@ public class MinimaxTree {
 	 * Az AI id-ja amihez készül a játékfa (tulajdonos)
 	 */
 	private int aiId;
+	/**
+	 * Levél állapotok értékének kiszámíásához használt heurisztika
+	 */
+	private Heuristic heuristic;
 	/**
 	 * A játék jelenlegi állása, ahonnan indul a lehetséges állások generálása
 	 */
@@ -45,11 +51,12 @@ public class MinimaxTree {
 	 * @param aiId
 	 *            AI id-ja
 	 */
-	public MinimaxTree(Grid grid, int aiId, int depth) {
-		this.aiId = aiId;
+	public MinimaxTree(Grid grid, MinimaxAI ai) {
+		aiId = ai.getId();
+		heuristic = Heuristic.get(ai);
 		startState = new State(grid);
 		
-		set(depth);
+		set(ai.getLevel());
 	}
 
 	/**
@@ -97,8 +104,8 @@ public class MinimaxTree {
 	private void setBestDirection() {
 		double bestGrade = -Double.MAX_VALUE; // ismert legmagasabb értékelés
 
+		startState.orderChildren();
 		evaluate(startState, -Double.MAX_VALUE, Double.MAX_VALUE);
-//		startState.orderChildren();
 
 		for (State child : startState.children) {
 			if (child.grade != null && child.grade > bestGrade) {
@@ -108,8 +115,6 @@ public class MinimaxTree {
 				bestDirection = child.direction;
 			}
 		}
-
-		resetGrades(startState);
 	}
 
 	/**
@@ -172,8 +177,9 @@ public class MinimaxTree {
 		}
 	}
 
+	@Override
 	public String toString() {
-		return startState.print("", true);
+		return aiId + "\n" + startState.print("", true);
 	}
 
 	/**
@@ -216,7 +222,7 @@ public class MinimaxTree {
 		}
 
 		/**
-		 * Állás inicializálása
+		 * �?llás inicializálása
 		 * 
 		 * @param parent
 		 *            szülő állás
@@ -236,13 +242,16 @@ public class MinimaxTree {
 			isMyTurn = !parent.isMyTurn;
 			grid = parent.grid.clone();
 
-			client = (parent.isMyTurn) ? grid.getClient(aiId) : grid
-					.getEnemy(aiId);
+			client = (parent.isMyTurn) 
+					? grid.getClient(aiId) 
+					: grid.getEnemy(aiId);
 
 			client.trySetDirection(direction);
 			client.step();
-
-			new GridController(grid).evaluate();
+			
+			if (isMyTurn) {
+				new GridController(grid).evaluate();
+			}
 		}
 
 		/**
@@ -253,13 +262,13 @@ public class MinimaxTree {
 				return;
 			}
 
-			List<Direction> validDirections;
 			Client client = (isMyTurn)
 					? grid.getClient(aiId)
 					: grid.getEnemy(aiId);
 
 			try {
-				validDirections = grid.getValidDirections(client.getPosition());
+				List<Direction> validDirections = 
+						grid.getValidDirections(client.getPosition());
 
 				for (Direction direction : validDirections) {
 					children.add(new State(this, direction));
@@ -271,55 +280,9 @@ public class MinimaxTree {
 		 * Értékeli az állást
 		 */
 		public void grade() {
-			int numAliveClients = grid.getAliveClients().size();
-			int numFloors = grid.getNumFloors();
-
-			if (numAliveClients == 0) {
-				grade = -numFloors / 2.0; // TIE
-			} else if (numAliveClients == 1) {
-				Client winner = grid.getAliveClients().get(0);
-
-				grade = (winner.getId() == aiId) 
-						? (double) numFloors // WIN
-						: (double) -numFloors; // LOSE
-			} else {
-				Client client = grid.getClient(aiId);
-				Client enemy = grid.getEnemy(aiId);
-				List<Point> accessibleFloors = grid.getAccessibleFloors(client);
-
-				/*
-				 * ha az ellenfél pozíciójának valamelyik szomszédját eléri 
-				 * akkor nincs elszeparálva
-				 */
-				boolean isSeparated = true;
-				for (Direction d : Direction.values()) {
-					if (accessibleFloors.contains(d.getTranslatedPoint(
-							enemy.getPosition()))) {
-						isSeparated = false;
-						break;
-					}
-				}
-
-				if (!isSeparated) {
-					double distance = client.getPosition().distance(
-							enemy.getPosition());
-
-					/*
-					 * minnél közelebb van hozzá (csak heurisztikus távolságot
-					 * mér, légvonalban milyen távol vannak egymástól a
-					 * kliensek)
-					 */
-					grade = (numFloors / 2.0) / distance;
-				} else {
-					int difference = accessibleFloors.size() - 
-							(numFloors - accessibleFloors.size());
-
-					// minnél több padlót ér el
-					grade = (numFloors / 2.0) + difference;
-				}
-			}
+			grade = heuristic.getGrade(grid);
 		}
-
+		
 		/**
 		 * Értékük szerint rendezi az elérhető állásokat, annak függvényében
 		 * hogy melyik kliens következik

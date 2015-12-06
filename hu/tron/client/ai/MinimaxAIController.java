@@ -1,7 +1,7 @@
 package hu.tron.client.ai;
 
 import hu.tron.grid.Grid;
-import hu.tron.utility.MinimaxTree;
+import hu.tron.heuristic.MinimaxTree;
 
 /**
  * Minimax algoritmusra épülõ AI-t kezelõ osztály
@@ -14,20 +14,14 @@ public class MinimaxAIController extends AIController {
 	 * Játékfa
 	 */
 	private MinimaxTree stepTree;
-	/**
-	 * Játékfa maximális mélysége. Minél nagyobb annál jobb eredményt ad, de
-	 * annál több idõ kell a számításához.
-	 */
-	private int depth;
 
-	public MinimaxAIController(AI ai) {
+	public MinimaxAIController(MinimaxAI ai) {
 		super(ai);
-		depth = ai.getLevel();
 	}
 
 	@Override
 	public void step(Grid grid) {
-		stepTree = new MinimaxTree(grid, client.getId(), depth);
+		stepTree = new MinimaxTree(grid, (MinimaxAI) client);
 
 		client.trySetDirection(stepTree.getBestDirection());
 

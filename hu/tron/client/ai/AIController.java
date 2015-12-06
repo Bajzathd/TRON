@@ -1,6 +1,7 @@
 package hu.tron.client.ai;
 
 import hu.tron.client.ClientController;
+import hu.tron.heuristic.Heuristic;
 
 /**
  * AI-kat kezelõ osztályok õsosztálya
@@ -21,17 +22,27 @@ public abstract class AIController extends ClientController {
 	 * @return klienskezelõ
 	 */
 	public static AIController get(AI ai) {
-		int level = ai.getLevel();
-
-		if (level <= 0) {
-			return new RandomAIController(ai);
+		if (ai instanceof MinimaxAI) {
+			return new MinimaxAIController((MinimaxAI) ai);
 		} else {
-			return new MinimaxAIController(ai);
+			return new RandomAIController((AI) ai);
 		}
 	}
 	
-	public static AI getNewModel(int level) {
-		return new AI(ClientController.nextId++, level);
+	/**
+	 * @return Random AI modell
+	 */
+	public static AI getNewModel() {
+		return new AI(ClientController.nextId++);
+	}
+	
+	/**
+	 * @param type heurisztika típusa
+	 * @param level minimax fa maximális mélysége
+	 * @return Minimax AI modell
+	 */
+	public static AI getNewModel(Heuristic.type type, int level) {
+		return new MinimaxAI(ClientController.nextId++, type, level);
 	}
 	
 }
